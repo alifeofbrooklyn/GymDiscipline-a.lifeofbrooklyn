@@ -1,0 +1,3038 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Journey - Monthly Log</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: '#0f172a',
+                        brand: '#2563eb',
+                        bglight: '#f8fafc',
+                    },
+                    fontFamily: {
+                        sans: ['Kanit', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Kanit', sans-serif; background-color: #f8fafc; }
+        .sticky-nav { position: sticky; top: 0; z-index: 50; backdrop-filter: blur(12px); background-color: rgba(255,255,255,0.95); border-bottom: 1px solid #e2e8f0; }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .month-tab { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); white-space: nowrap; }
+        .tab-active { background-color: #0f172a; color: white; transform: scale(1.05); box-shadow: 0 4px 10px rgba(15, 23, 42, 0.2); }
+        .tab-inactive { background-color: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; }
+        .tab-inactive:hover { background-color: #e2e8f0; color: #334155; }
+        
+        .animate-up { animation: slideUp 0.4s ease-out forwards; opacity: 0; transform: translateY(20px); }
+        @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <nav class="sticky-nav shadow-sm bg-white/80 backdrop-blur-md transition-all duration-300">
+        <div class="px-6 py-3 flex justify-between items-center max-w-4xl mx-auto">
+            
+            <a href="index.html" class="flex items-center justify-center w-10 h-10 rounded-full bg-slate-50 text-slate-500 hover:bg-slate-100 hover:text-brand transition">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            
+            <div class="flex flex-col items-center">
+                <span class="text-[10px] font-bold tracking-widest text-slate-400 uppercase">Archive</span>
+                <div class="font-bold text-dark text-lg leading-none">
+                    MONTHLY <span class="text-brand">LOG</span>
+                </div>
+            </div>
+
+            <a href="index.html" class="relative group cursor-pointer block">
+                <span class="absolute -inset-2 rounded-full bg-blue-100 opacity-0 group-hover:opacity-100 group-hover:animate-ping transition duration-500"></span>
+                
+                <div class="relative w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-md group-hover:border-blue-400 transition-colors duration-300">
+                    <img src="https://img2.pic.in.th/pic/imagee4a23de30075d23d.png" class="w-full h-full object-cover transform group-hover:scale-110 transition duration-500" alt="Profile">
+                </div>
+
+                <div class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full z-10 shadow-sm">
+                    <span class="absolute inset-0 rounded-full bg-emerald-500 animate-ping opacity-75"></span>
+                </div>
+            </a>
+        </div>
+
+        <div class="border-t border-slate-100 bg-slate-50/50 backdrop-blur-sm">
+            <div class="max-w-4xl mx-auto">
+                <div id="monthTabsContainer" class="flex overflow-x-auto no-scrollbar py-3 px-6 gap-3 snap-x scroll-smooth">
+                    <div class="text-xs text-slate-400 py-2">Loading months...</div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-4xl mx-auto px-6 py-8 min-h-screen">
+        
+        <div id="monthSummary" class="mb-8 flex gap-4 overflow-x-auto pb-2">
+            </div>
+
+        <div id="timelineContainer" class="space-y-6">
+            </div>
+
+    </main>
+
+    <script>
+        // ==========================================================================================
+        // พื้นที่วางข้อมูล: ให้เอาไฟล์ TXT ทั้งหมดมาต่อกันที่นี่ (เหมือนเดิม)
+        // ==========================================================================================
+        const fullDatabase = `
+[01] - 13/12/24 💪🏼✊🏼 - Home Workout
+17.5kg 12/4 - Barbell Curl
+17.5kg 12/4 - Barbell Military Press
+17.5kg 12/4 - Barbell Squat
+17.5kg 12/4 - Barbell Bench Press
+8kg 12/4 - Dumbbell Hammer Curl
+8kg 12/4 - Dumbbell Lateral Raise
+8kg 12/4 - Dumbbell Concentration Curl
+8kg 12/4 - Dumbbell Overhead Extension
+8kg 12/4 - Dumbbell Overhead Press
+[02] - 14/12/24 💪🏼✊🏼 - Home Workout
+17.5kg 12/4 - Barbell Curl
+17.5kg 12/4 - Barbell Military Press
+17.5kg 12/4 - Barbell Squat
+17.5kg 12/4 - Barbell Bench Press
+8kg 12/4 - Dumbbell Hammer Curl
+8kg 12/4 - Dumbbell Lateral Raise
+8kg 12/4 - Dumbbell Concentration Curl
+8kg 12/4 - Dumbbell Overhead Extension
+8kg 12/4 - Dumbbell Overhead Press
+[03] - 15/12/24 💪🏼✊🏼 - Home Workout
+17.5kg 12/4 - Barbell Curl
+17.5kg 12/4 - Barbell Military Press
+17.5kg 12/4 - Barbell Squat
+17.5kg 12/4 - Barbell Bench Press
+8kg 12/4 - Dumbbell Hammer Curl
+8kg 12/4 - Dumbbell Lateral Raise
+8kg 12/4 - Dumbbell Concentration Curl
+8kg 12/4 - Dumbbell Overhead Extension
+8kg 12/4 - Dumbbell Overhead Press
+[04] - 16/12/24 💪🏼✊🏼 - Home Workout
+17.5kg 12/4 - Barbell Curl
+17.5kg 12/4 - Barbell Military Press
+17.5kg 12/4 - Barbell Squat
+17.5kg 12/4 - Barbell Bench Press
+8kg 12/4 - Dumbbell Hammer Curl
+8kg 12/4 - Dumbbell Lateral Raise
+8kg 12/4 - Dumbbell Concentration Curl
+8kg 12/4 - Dumbbell Overhead Extension
+8kg 12/4 - Dumbbell Overhead Press
+[05] - 17/12/24 💪🏼✊🏼 - Home Workout
+17.5kg 12/4 - Barbell Curl
+17.5kg 12/4 - Barbell Military Press
+17.5kg 12/4 - Barbell Squat
+17.5kg 12/4 - Barbell Bench Press
+8kg 12/4 - Dumbbell Hammer Curl
+8kg 12/4 - Dumbbell Lateral Raise
+8kg 12/4 - Dumbbell Concentration Curl
+8kg 12/4 - Dumbbell Overhead Extension
+8kg 12/4 - Dumbbell Overhead Press
+[06] - 18/12/24 💪🏼✊🏼 - Home Workout
+17.5kg 12/4 - Barbell Curl
+17.5kg 12/4 - Barbell Military Press
+17.5kg 12/4 - Barbell Squat
+17.5kg 12/4 - Barbell Bench Press
+8kg 12/4 - Dumbbell Hammer Curl
+8kg 12/4 - Dumbbell Lateral Raise
+8kg 12/4 - Dumbbell Concentration Curl
+8kg 12/4 - Dumbbell Overhead Extension
+8kg 12/4 - Dumbbell Overhead Press
+[07] - 19/12/24 💪🏼✊🏼 - Home Workout
+17.5kg 12/4 - Barbell Curl
+17.5kg 12/4 - Barbell Military Press
+17.5kg 12/4 - Barbell Squat
+17.5kg 15/10 - Barbell Bench Press
+8kg 12/4 - Dumbbell Hammer Curl
+8kg 12/4 - Dumbbell Lateral Raise
+8kg 12/4 - Dumbbell Concentration Curl
+8kg 12/4 - Dumbbell Overhead Extension
+8kg 12/4 - Dumbbell Overhead Press 
+[08] - 20/12/24 💪🏼✊🏼 - Home Workout
+17.5kg 12/4 - Barbell Curl
+17.5kg 12/4 - Barbell Military Press
+17.5kg 12/4 - Barbell Squat
+17.5kg 15/10 - Barbell Bench Press
+8kg 12/4 - Dumbbell Hammer Curl
+8kg 12/4 - Dumbbell Lateral Raise
+8kg 12/4 - Dumbbell Concentration Curl
+8kg 12/4 - Dumbbell Overhead Extension
+8kg 12/4 - Dumbbell Overhead Press 
+[09] - 21/12/24 💪🏼✊🏼 - Home Workout
+17.5kg 12/4 - Barbell Curl
+17.5kg 12/4 - Barbell Military Press
+17.5kg 12/4 - Barbell Squat
+17.5kg 15/10 - Barbell Bench Press
+8kg 12/4 - Dumbbell Hammer Curl
+8kg 12/4 - Dumbbell Lateral Raise
+8kg 12/4 - Dumbbell Concentration Curl
+8kg 12/4 - Dumbbell Overhead Extension
+8kg 12/4 - Dumbbell Overhead Press 
+4kg 40/4 - Dumbbell Four Arm Curl
+4kg 30/3 - Dumbbell Reverse Four Arm Curl
+[10] - 22/12/24 💪🏼✊🏼 - Home Workout
+17.5kg 12/4 - Barbell Curl
+17.5kg 12/4 - Barbell Military Press
+17.5kg 12/4 - Barbell Squat
+17.5kg 15/10 - Barbell Bench Press
+8kg 12/4 - Dumbbell Hammer Curl
+8kg 12/4 - Dumbbell Lateral Raise
+8kg 12/4 - Dumbbell Concentration Curl
+8kg 12/4 - Dumbbell Overhead Extension
+8kg 12/4 - Dumbbell Overhead Press 
+4kg 40/4 - Dumbbell Four Arm Curl
+4kg 30/3 - Dumbbell Reverse Four Arm Curl
+[11] - 23/12/24 💪🏼✊🏼 - Home Workout
+17.5kg 12/5 - Barbell Curl
+17.5kg 12/4 - Barbell Military Press
+17.5kg 12/4 - Barbell Squat
+17.5kg 15/10 - Barbell Bench Press
+8kg 12/4 - Dumbbell Hammer Curl
+8kg 12/4 - Dumbbell Lateral Raise
+8kg 12/4 - Dumbbell Concentration Curl
+8kg 12/4 - Dumbbell Overhead Extension
+8kg 12/4 - Dumbbell Overhead Press 
+8kg 12/4 - Dumbbell Front Paise
+4kg 40/4 - Dumbbell Four Arm Curl
+4kg 30/3 - Dumbbell Reverse Four Arm Curl
+[12] - 24/12/24 💪🏼✊🏼 - Home Workout
+17.5kg 12/5 - Barbell Curl
+17.5kg 12/4 - Barbell Military Press
+17.5kg 12/4 - Barbell Squat
+17.5kg 15/10 - Barbell Bench Press
+8kg 12/4 - Dumbbell Hammer Curl
+8kg 12/4 - Dumbbell Lataral Raise
+8kg 12/4 - Dumbbell Concentration Curl
+8kg 12/4 - Dumbbell Overhead Extension
+8kg 12/4 - Dumbbell Overhead Press 
+8kg 12/4 - Dumbbell Front Paise
+4kg 40/4 - Dumbbell Four Arm Curl
+4kg 30/3 - Dumbbell Reverse Four Arm Curl
+[13] - 25/12/24 💪🏼✊🏼🚲 - Home Workout
+17.5kg 12/5 - Barbell Curl
+17.5kg 12/4 - Barbell Military Press
+17.5kg 12/4 - Barbell Squat
+17.5kg 15/10 - Barbell Bench Press
+8kg 12/4 - Dumbbell Hammer Curl
+8kg 12/4 - Dumbbell Lateral Raise
+8kg 12/4 - Dumbbell Concentration Curl
+8kg 12/4 - Dumbbell Overhead Extension
+8kg 12/4 - Dumbbell Overhead Press 
+8kg 12/4 - Dumbbell Front Paise
+4kg 40/4 - Dumbbell Four Arm Curl
+4kg 30/3 - Dumbbell Reverse Four Arm Curl
+Cardio 130 Minute (Cycling)
+[14] - 26/12/24 💪🏼✊🏼🚲 - Home Workout
+17.5kg 12/5 - Barbell Curl
+17.5kg 12/4 - Barbell Military Press
+17.5kg 12/4 - Barbell Squat
+17.5kg 15/10 - Barbell Bench Press
+8kg 12/4 - Dumbbell Hammer Curl
+8kg 12/4 - Dumbbell Lateral Raise
+8kg 12/4 - Dumbbell Concentration Curl
+8kg 12/4 - Dumbbell Overhead Extension
+8kg 12/4 - Dumbbell Overhead Press 
+8kg 12/4 - Dumbbell Front Paise
+4kg 40/4 - Dumbbell Four Arm Curl
+4kg 30/3 - Dumbbell Reverse Four Arm Curl
+Cardio 120 Minute (Cycling)
+[15] - 27/12/24 💪🏼✊🏼🚲 - Home Workout
+17.5kg 12/5 - Barbell Curl
+17.5kg 12/4 - Barbell Military Press
+17.5kg 12/4 - Barbell Squat
+17.5kg 15/10 - Barbell Bench Press
+8kg 12/4 - Dumbbell Hammer Curl
+8kg 12/4 - Dumbbell Lateral Raise
+8kg 12/4 - Dumbbell Concentration Curl
+8kg 12/4 - Dumbbell Overhead Extension
+8kg 12/4 - Dumbbell Overhead Press 
+8kg 12/4 - Dumbbell Front Paise
+4kg 40/4 - Dumbbell Four Arm Curl
+4kg 30/3 - Dumbbell Reverse Four Arm Curl
+Cardio 120 Minute (Cycling)
+[16] - 28/12/24 💪🏼✊🏼🚲🚗🚙🛵 - Home Workout
+17.5kg 12/4 - Barbell Curl
+17.5kg 12/4 - Barbell Military Press
+17.5kg 12/4 - Barbell Squat
+17.5kg 12/4 - Barbell Bench Press
+8kg 12/4 - Dumbbell Hammer Curl
+8kg 12/4 - Dumbbell Lateral Raise
+8kg 12/4 - Dumbbell Concentration Curl
+8kg 12/4 - Dumbbell Overhead Extension
+8kg 12/4 - Dumbbell Overhead Press 
+8kg 12/4 - Dumbbell Front Paise
+4kg 40/4 - Dumbbell Four Arm Curl
+4kg 30/3 - Dumbbell Reverse Four Arm Curl
+Cardio 60 Minute (Cycling)
+(2 Hours) Wash 3 Cars
+[17] - 29/12/24 💪🏼✊🏼🚲 - Home Workout
+17.5kg 12/4 - Barbell Curl
+17.5kg 12/4 - Barbell Military Press
+17.5kg 12/4 - Barbell Squat
+17.5kg 12/4 - Barbell Bench Press
+8kg 12/4 - Dumbbell Hammer Curl
+8kg 12/4 - Dumbbell Lateral Raise
+8kg 12/4 - Dumbbell Concentration Curl
+8kg 12/4 - Dumbbell Overhead Extension
+8kg 12/4 - Dumbbell Overhead Press 
+4kg 40/4 - Dumbbell Four Arm Curl
+4kg 30/3 - Dumbbell Reverse Four Arm Curl
+Cardio 120 Minute (Cycling)
+[18] - 30/12/24 💪🏼✊🏼🚲💇‍♂️ - Home Workout
+17.5kg 12/4 - Barbell Curl
+17.5kg 12/4 - Barbell Military Press
+17.5kg 12/4 - Barbell Squat
+17.5kg 12/4 - Barbell Bench Press
+8kg 12/4 - Dumbbell Hammer Curl
+8kg 12/4 - Dumbbell Lateral Raise
+8kg 12/4 - Dumbbell Concentration Curl
+8kg 12/4 - Dumbbell Overhead Extension
+8kg 12/4 - Dumbbell Overhead Press 
+4kg 40/4 - Dumbbell Four Arm Curl
+4kg 30/3 - Dumbbell Reverse Four Arm Curl
+Cardio 60/60 Minute (Cycling)
+[19] - 31/12/24 💪🏼✊🏼🚲 - Home Workout
+17.5kg 12/4 - Barbell Curl
+17.5kg 12/4 - Barbell Military Press
+17.5kg 12/4 - Barbell Squat
+17.5kg 12/4 - Barbell Bench Press
+8kg 12/4 - Dumbbell Hammer Curl
+8kg 12/4 - Dumbbell Lateral Raise
+8kg 12/4 - Dumbbell Concentration Curl
+8kg 12/4 - Dumbbell Overhead Extension
+8kg 12/4 - Dumbbell Overhead Press 
+4kg 40/4 - Dumbbell Four Arm Curl
+4kg 30/3 - Dumbbell Reverse Four Arm Curl
+Cardio 120 Minute (Cycling)
+[20] - 01/01/25 💪🏼✊🏼🚲 - Home Workout
+20kg 12/4 - Barbell Curl
+20kg 12/4 - Barbell Military Press
+20kg 12/4 - Barbell Squat
+20kg 12/4 - Barbell Bench Press
+8kg 12/4 - Dumbbell Hammer Curl
+8kg 12/4 - Dumbbell Lateral Raise
+8kg 12/4 - Dumbbell Concentration Curl
+8kg 12/4 - Dumbbell Overhead Extension
+8kg 12/4 - Dumbbell Overhead Press 
+4kg 40/4 - Dumbbell Four Arm Curl
+4kg 30/3 - Dumbbell Reverse Four Arm Curl
+Cardio 60 Minute (Cycling)
+[21] - 02/01/25 💪🏼✊🏼🚲 - Home Workout
+20kg 12/4 - Barbell Curl
+20kg 12/4 - Barbell Military Press
+20kg 12/4 - Barbell Squat
+20kg 12/4 - Barbell Bench Press
+20kg 12/4 - Barbell Row
+8kg 12/4 - Dumbbell Hammer Curl
+8kg 12/4 - Dumbbell Lateral Raise
+8kg 12/4 - Dumbbell Concentration Curl
+8kg 12/4 - Dumbbell Overhead Extension
+8kg 12/4 - Dumbbell Overhead Press 
+4kg 40/4 - Dumbbell Four Arm Curl
+4kg 30/3 - Dumbbell Reverse Four Arm Curl
+Cardio 60 Minute (Cycling)
+[22] - 03/01/25 💪🏼✊🏼🚲 - Home Workout
+20kg 12/4 - Barbell Curl
+20kg 12/4 - Barbell Military Press
+20kg 12/4 - Barbell Squat
+20kg 12/4 - Barbell Bench Press
+20kg 12/4 - Barbell Row
+8kg 12/4 - Dumbbell Hammer Curl
+8kg 12/4 - Dumbbell Lateral Raise
+8kg 12/4 - Dumbbell Concentration Curl
+8kg 12/4 - Dumbbell Overhead Extension
+8kg 12/4 - Dumbbell Overhead Press 
+4kg 40/4 - Dumbbell Four Arm Curl
+4kg 30/3 - Dumbbell Reverse Four Arm Curl
+Cardio 60 Minute (Cycling)
+[23] - 04/01/25 💪🏼✊🏼🚲 - Home Workout
+20kg 12/4 - Barbell Curl
+20kg 12/4 - Barbell Military Press
+20kg 12/4 - Barbell Squat
+20kg 12/4 - Barbell Bench Press
+20kg 12/4 - Barbell Row
+8kg 12/4 - Dumbbell Hammer Curl
+8kg 12/4 - Dumbbell Lateral Raise
+8kg 12/4 - Dumbbell Concentration Curl
+8kg 12/4 - Dumbbell Overhead Extension
+8kg 12/4 - Dumbbell Overhead Press 
+8kg 30/5 - Dumbbell Four Arm Curl
+4kg 30/5 - Dumbbell Reverse Four Arm Curl
+Cardio 60 Minute (Cycling)
+[24] - 05/01/25 💪🏼✊🏼🚲 - Home Workout
+20kg 12/4 - Barbell Curl
+20kg 12/4 - Barbell Military Press
+20kg 12/4 - Barbell Squat
+20kg 12/4 - Barbell Bench Press
+20kg 12/4 - Barbell Row
+8kg 12/4 - Dumbbell Hammer Curl
+8kg 12/4 - Dumbbell Lateral Raise
+8kg 12/4 - Dumbbell Concentration Curl
+8kg 12/4 - Dumbbell Overhead Extension
+8kg 12/4 - Dumbbell Overhead Press 
+8kg 30/5 - Dumbbell Four Arm Curl
+4kg 30/5 - Dumbbell Reverse Four Arm Curl
+Cardio 60 Minute (Cycling)
+[25] - 06/01/25 💪🏼✊🏼🚲 - Home Workout
+20kg 12/4 - Barbell Curl
+20kg 12/4 - Barbell Military Press
+20kg 12/4 - Barbell Squat
+20kg 12/4 - Barbell Bench Press
+20kg 12/4 - Barbell Row
+8kg 12/4 - Dumbbell Hammer Curl
+8kg 12/4 - Dumbbell Lateral Raise
+8kg 12/4 - Dumbbell Concentration Curl
+8kg 12/4 - Dumbbell Overhead Extension
+8kg 12/4 - Dumbbell Overhead Press 
+8kg 30/5 - Dumbbell Four Arm Curl
+4kg 30/5 - Dumbbell Reverse Four Arm Curl
+Cardio 60 Minute (Cycling)
+[26] - 07/01/25 💪🏼✊🏼🚲 - Home Workout
+20kg 12/4 - Barbell Curl
+20kg 12/4 - Barbell Military Press
+20kg 12/4 - Barbell Squat
+20kg 12/4 - Barbell Bench Press
+20kg 12/4 - Barbell Row
+8kg 12/4 - Dumbbell Hammer Curl
+8kg 12/4 - Dumbbell Lateral Raise
+8kg 12/4 - Dumbbell Concentration Curl
+8kg 12/4 - Dumbbell Overhead Extension
+8kg 12/4 - Dumbbell Overhead Press 
+8kg 30/5 - Dumbbell Four Arm Curl
+4kg 30/5 - Dumbbell Reverse Four Arm Curl
+Cardio 60 Minute (Cycling)
+[27] - 08/01/25 💪🏼✊🏼🚲 - Home Workout
+20kg 12/4 - Barbell Curl
+20kg 12/4 - Barbell Military Press
+20kg 12/4 - Barbell Squat
+20kg 12/4 - Barbell Bench Press
+20kg 12/4 - Barbell Row
+8kg 12/4 - Dumbbell Hammer Curl
+8kg 12/4 - Dumbbell Lateral Raise
+8kg 12/4 - Dumbbell Concentration Curl
+8kg 12/4 - Dumbbell Overhead Extension
+8kg 12/4 - Dumbbell Overhead Press 
+8kg 30/5 - Dumbbell Four Arm Curl
+4kg 30/5 - Dumbbell Reverse Four Arm Curl
+Cardio 60 Minute (Cycling)
+[28] - 09/01/25 🎓✊🏼🚲
+8kg 30/5 - Dumbbell Four Arm Curl
+4kg 30/5 - Dumbbell Reverse Four Arm Curl
+Cardio 60 Minute (Cycling)
+[29] - 10/01/25 💪🏼✊🏼🚲 - Home Workout
+20kg 12/4 - Barbell Curl
+20kg 12/4 - Barbell Military Press
+20kg 12/4 - Barbell Bench Press
+20kg 12/4 - Barbell Squat 
+20kg 12/4 - Barbell Row
+8kg 12/4 - Dumbbell Hammer Curl
+8kg 12/4 - Dumbbell Lataral Raise
+8kg 12/4 - Dumbbell Concentration Curl
+8kg 12/4 - Dumbbell Overhead Extension
+8kg 12/4 - Dumbbell Overhead Press
+8kg 30/5 - Dumbbell Four Arm Curl
+4kg 30/5 - Dumbbell Reverse Four Arm Curl
+Cardio 60 Minute (Cycling)
+[30] - 11/01/25 💪🏼✊🏼🚲 - Home Workout
+20kg 12/4 - Barbell Curl
+20kg 12/4 - Barbell Military Press
+20kg 12/4 - Barbell Bench Press
+20kg 12/4 - Barbell Squat 
+20kg 12/4 - Barbell Row
+8kg 12/4 - Dumbbell Hammer Curl
+8kg 12/4 - Dumbbell Lataral Raise
+8kg 12/4 - Dumbbell Concentration Curl
+8kg 12/4 - Dumbbell Overhead Extension
+8kg 12/4 - Dumbbell Overhead Press
+8kg 30/5 - Dumbbell Four Arm Curl
+4kg 30/5 - Dumbbell Reverse Four Arm Curl
+Cardio 60 Minute (Cycling)
+[31] - 12/01/25 ✊🏼🚲
+8kg 30/5 - Dumbbell Four Arm Curl
+4kg 30/5 - Dumbbell Reverse Four Arm Curl
+Cardio 60 Minute (Cycling)
+[32] - 13/01/25 🎓💪🏼✊🏼🚲 - Upper Body
+40kg 8/2 - Barbell Bench Press
+30kg 12/2 - Barbell Bench Press
+20kg 12/2 - Barbell Bench Press
+12kg 12/4 - Dumbbell Lataral Raise
+10kg 12/4 - Dumbbell Concentration Curl
+8kg 30/5 - Dumbbell Four Arm Curl
+4kg 30/5 - Dumbbell Reverse Four Arm Curl
+Cardio 45/30 Minute (Cycling)
+[33] - 14/01/25 ✊🏼🚲
+8kg 30/5 - Dumbbell Four Arm Curl
+4kg 30/5 - Dumbbell Reverse Four Arm Curl
+Cardio 60 Minute (Cycling)
+[34] - 15/01/25 🎓💪🏼✊🏼🚲 - Upper Body
+40.5kg 12/4 - ABDOMINAL
+40.5kg 12/4 - ROW
+40.5kg 12/4 - CHEST PRESS
+40.5kg 12/4 - PULLDOWN
+22.5kg 12/4 - ARM EXTENSION
+12kg 12/4 - Dumbbell Overhead Extension
+10kg 12/4 - Dumbbell Curl
+10kg 12/4 - Dumbbell Hammer Curl
+10kg 12/4 - Dumbbell Lataral Raise
+10kg 30/5 - Dumbbell Four Arm Curl
+6kg 30/5 - Dumbbell Reverse Four Arm Curl
+Cardio 35 Minute (Cycling)
+[35] - 16/01/25 🎓💪🏼✊🏼🚲 - Lower Body
+40.5kg 12/4 - ABDOMINAL
+40.5kg 12/4 - HIP ADDUCTION
+40.5kg 12/4 - HIP ABDUCTION
+40.5kg 12/4 - SEATED LEG CURL
+40.5kg 12/4 - FLY/REAR DELT CHEST
+49.5kg 12/4 - HIP ABDUCTION
+67.5kg 8/4 - HIP ADDUCTION
+49.5kg 12/4 - SEATED LEG CURL
+40.5kg 8/4 - LEG EXTENSION
+58.5kg 8/4 - HIP ABDUCTION
+67.5kg 8/4 - HIP ADDUCTION
+10kg 30/5 - Dumbbell Four Arm Curl
+4kg 30/5 - Dumbbell Reverse Four Arm Curl
+Cardio 60 Minute (Cycling)
+[36] - 17/01/25 ✊🏼🤤
+REST REST REST REST REST REST REST
+[37] - 18/01/25 ✊🏼🚲
+8kg 30/5 - Dumbbell Four Arm Curl
+4kg 30/5 - Dumbbell Reverse Four Arm Curl
+Cardio 60 Minute (Cycling)
+[38] - 19/01/25 ✊🏼🚲
+8kg 30/5 - Dumbbell Four Arm Curl
+4kg 30/5 - Dumbbell Reverse Four Arm Curl
+Cardio 60 Minute (Cycling)
+[39] - 20/01/25 🎓💪🏼✊🏼🚲 - Upper Body
+40.5kg 8/4 - FLY/REAR DELT CHEST
+40.5kg 8/4 - LATERAL RAISE
+40.5kg 8/4 - CHEST PRESS
+40.5kg 8/4 - ROW
+40.5kg 12/4 - ABDOMINAL
+40.5kg 8/4 - PULLDOWN
+31.5kg 8/4 - OVERHEAD PRESS
+22.5kg 8/4 - ARM EXTENSION
+31.5kg 8/4 - ARM CURL
+Cardio 20 Minute (Cycling)
+[40] - 21/01/25 🎓🤤
+REST REST REST REST REST REST REST
+[41] - 22/01/25 🎓💪🏼✊🏼🚲 - Upper Body
+40.5kg 12/4 - FLY/REAR DELT CHEST
+40.5kg 10/4 - CHEST PRESS
+40.5kg 10/4 - PULLDOWN
+40.5kg 10/4 - ROW
+40.5kg 10/4 - LATERAL RAISE
+31.5kg 8/4 - OVERHEAD PRESS
+22.5kg 10/4 - ARM EXTENSION
+31.5kg 10/4 - ARM CURL
+58.5kg 8/4 - ABDOMINAL
+10kg 12/4 - Dumbbell Lataral Raise
+10kg 12/4 - Dumbbell Hammer Curl
+12kg 8/4 - Dumbbell Overhead Extension
+49.5kg 8/4 - LATERAL RAISE
+30kg 10/4 - Barbell Row
+Cardio 30 Minute (Cycling)
+[42] - 23/01/25 🎓💪🏼🚲 - Lower Body
+60kg 1/1 - Bench Press
+20kg 8/4 - Barbell Squat
+40.5kg 10/4 - LEG EXTENSION
+58.5kg 10/4 - HIP ADDUCTION
+49.5kg 10/4 - GLUTE
+58.5kg 10/4 - HIP ADDUCTION
+40.5kg 10/4 - STANDING CALF
+40.5kg 10/4 - SEATED LEG CURL
+Cardio 30 Minute (Cycling)
+[43] - 24/01/25 ✊🏼🤤
+REST REST REST REST REST REST REST
+[44] - 25/01/25 💪🏼✊🏼🚲 - Home Workout
+20kg 12/4 - Barbell Curl
+20kg 12/4 - Barbell Military Press
+20kg 12/4 - Barbell Bench Press
+20kg 12/4 - Barbell Row
+8kg 12/4 - Dumbbell Hammer Curl
+8kg 12/4 - Dumbbell Lataral Raise
+8kg 12/4 - Dumbbell Concentration Curl
+8kg 12/4 - Dumbbell Overhead Extension
+8kg 12/4 - Dumbbell Overhead Press
+8kg 30/5 - Dumbbell Four Arm Curl
+4kg 30/5 - Dumbbell Reverse Four Arm Curl
+Cardio 45 Minute (Cycling)
+[45] - 26/01/25 ✊🏼🤤
+REST REST REST REST REST REST REST
+[46] - 27/01/25 🎓 ✊🏼🚲
+8kg 30/5 - Dumbbell Four Arm Curl
+4kg 30/5 - Dumbbell Reverse Four Arm Curl
+Cardio 90 Minute (Cycling)
+[47] - 28/01/25 🎓 💪🏼✊🏼🚲 - Home Workout
+20kg 12/4 - Barbell Curl
+20kg 12/4 - Barbell Military Press
+20kg 12/4 - Barbell Bench Press
+20kg 12/4 - Barbell Row
+8kg 12/4 - Dumbbell Hammer Curl
+8kg 12/4 - Dumbbell Lataral Raise
+8kg 12/4 - Dumbbell Concentration Curl
+8kg 12/4 - Dumbbell Overhead Extension
+8kg 12/4 - Dumbbell Overhead Press
+Cardio 60/60 Minute (Cycling)
+[48] - 29/01/25 🎓💪🏼🚲 - Upper Body
+40.5kg 10/4 - CHEST PRESS
+31.5kg 8/4 - OVERHEAD PRESS
+18.75kg 10/4 - Triceps Rope
+23.75kg  15/4 - Straight Bar Cable Wrist Curl
+40.5kg 10/4 - FLY/REAR DELT CHEST
+40.5kg 10/4 - LATERAL RAISE
+40.5kg 10/4 - PULLDOWN
+40.5kg 10/4 - PULLDOWN
+40.5kg 12/4 - ROW
+67.5kg 8/2 - ABDOMINAL
+31.5kg 8/4 - ARM CURL
+31.5kg 8/4 - ARM EXTENSION
+40.5kg 10/4 - STANDING CALF
+Cardio 30 Minute (Cycling)
+[49] - 30/01/25 🎓💪🏼🚲 - Upper Body
+20kg 12/4 - Incline Bench Press
+40kg 8/4 - Incline Bench Press
+60kg 1/1 - Bench Press
+30kg 10/4 - Bench Press
+31.5kg 12/4 - Triceps Rope
+21.25kg 10/4 - Pope Hammer Curl
+18.0kg 8/4 - Cable Briceps Curl
+48.75kg 10/4 - Lat Pulldown
+48.75kg 10/4 - Seated Cable Row
+40.5kg 12/4 - SEATED LEG CURL
+49.5kg 12/4 - HIP ADDUCTION
+49.5kg 12/4 - HIP ABDUCTION
+58.5kg 10/4 - GLUTE
+58.5kg 10/4 - STANDING CALF
+Cardio 30 Minute (Cycling)
+[50] - 31/01/25 ✊🏼🚲
+Cardio 60 Minute (Cycling)
+[51] - 01/02/25 💪🏼 - Home Workout
+20kg 12/4 - Barbell Curl
+20kg 12/4 - Barbell Military Press
+20kg 12/4 - Barbell Bench Press
+20kg 12/4 - Barbell Row
+8kg 12/4 - Dumbbell Hammer Curl
+8kg 12/4 - Dumbbell Lataral Raise
+8kg 12/4 - Dumbbell Concentration Curl
+8kg 12/4 - Dumbbell Overhead Extension
+8kg 12/4 - Dumbbell Overhead Press
+[52] - 02/02/25 🤤
+REST REST REST REST REST REST REST
+[53] - 03/02/25 🎓 🤤
+REST REST REST REST REST REST REST
+[54] - 04/02/25 🎓 ✊🏼🚲
+8kg 30/5 - Dumbbell Four Arm Curl
+4kg 30/5 - Dumbbell Reverse Four Arm Curl
+Cardio 60 Minute (Cycling)
+[55] - 05/02/25 🎓💪🏼🚲🕊️23:30 - Upper Body
+40.5kg 8/4 - OVERHEAD PRESS
+40.5kg 10/4 - FLY/REAR DELT CHEST
+49.5kg 10/4 - PULLDOWN
+49.5kg 10/4 - CHEST PRESS
+48.75kg 10/4 - Lat Pulldown
+48.75kg 10/4 - Seated Cable Row
+31.5kg 12/4 - Triceps Rope
+31.5kg 12/4 - Pope Hammer Curl
+22.5kg 8/4 - Cable Briceps Curl
+58.5kg 10/4 - PULLDOWN
+49.5kg 8/4 - LATERAL RAISE
+31.5kg 8/4 - ARM CURL
+Cardio 20 Minute (Cycling)
+[56] - 06/02/25 🎓💪🏼🚲 - Upper Body
+20kg 12/4 - Incline Bench Press
+30kg 10/4 - Incline Bench Press
+40kg 8/4 - Incline Bench Press
+50kg 3/1 - Incline Bench Press
+60kg 1/1 - Incline Bench Press
+49.5kg 10/4 - ROW
+49.5kg 6/3 - FLY/REAR DELT CHEST
+49.5kg 6/3 - LATERAL RAISE
+58.5kg 6/3 - PULLDOWN
+58.5kg 6/3 - PULLDOWN
+67.5kg 6/3 - PULLDOWN
+58.5kg 6/3 - CHEST PRESS
+31.5kg 12/4 - Triceps Rope
+31.5kg 12/4 - Pope Hammer Curl
+30kg 10/3 - Barbell Row
+40kg 6/3 - Barbell Row
+48.75kg 10/3 - Seated Cable Row
+48.75kg 8/3 - Lat Pulldown
+Cardio 30 Minute (Cycling)
+[57] - 07/02/25 ✊🏼🤤
+REST REST REST REST REST REST REST
+[58] - 08/02/25 ✊🏼🚲
+Cardio 60 Minute (Cycling)
+[59] - 09/02/25 🤤
+REST REST REST REST REST REST REST
+[60] - 10/02/25 🎓💪🏼🚲 - Upper Body
+58.5kg 6/3 - PULLDOWN
+67.5kg 8/3 - PULLDOWN
+58.5kg 6/3 - LATERAL RAISE
+67.5kg 6/3 - ROW
+31.5kg 6/3 - FLY/REAR DELT BACK
+49.5kg 8/3 - FLY/REAR DELT CHEST
+48.75kg 8/3 - Seated Cable Row
+48.75kg 8/3 - Lat Pulldown
+48.75kg 8/3 - Behind The Neck Press
+23.75kg 8/4 - Pope Hammer Curl
+23.75kg 8/4 - Triceps Rope
+20kg 8/3 - Dumbbell Incline Bench Press
+12kg 8/3 - Dumbbell Lateral Raise
+16kg 8/3 - Dumbbell Hammer Curl
+Cardio 45 Minute (Cycling)
+[61] - 11/02/25 🎓 ✊🏼
+REST REST REST REST REST REST REST
+[62] - 12/02/25 🤤
+REST REST REST REST REST REST REST
+[63] - 13/02/25 🎓💪🏼🚲 - PUSH
+49.5kg 12/4 - CHEST PRESS
+31.5kg 12/4 - OVERHEAD PRESS
+40.5kg 12/4 - FLY/REAR DELT CHEST
+49.5kg 12/4 - LATERAL RAISE
+18.75kg 12/4 - Triceps Rope
+40kg 10/4 - Incline Bench Press
+26.25kg 10/4 - Triceps Pushdown
+Cardio 30 Minute (Cycling)
+[64] - 14/02/25 💪🏼 - PULL + LEG
+58.5kg 12/4 - ROW
+58.5kg 12/4 - PULLDOWN
+58.5kg 12/4 - LATERAL RAISE
+48.75kg 12/4 - Lat Pulldown
+48.75kg 15/4 - Seated Cable Row
+40kg 12/4 - Barbell Row
+22.5kg 15/4 - ARM CURL
+18.75kg 12/4 - Pope Hammer Curl
+18.75kg 8/4 - Cable Biceps Curl
+22.5kg 12/4 - FLY/REAR DELT BACK
+49.5kg 12/4 - SEATED LEG CURL
+49.5kg 12/4 - HIP ABDUCTION
+58.5kg 12/4 - HIP ADDUCTION
+58.5kg 10/4 - GLUTE
+49.5kg 15/4 - STANDING CALF
+[65] - 15/02/25 🤤
+REST REST REST REST REST REST REST
+[66] - 16/02/25 🤤
+REST REST REST REST REST REST REST
+[67] - 17/02/25 🎓💪🏼🚲 - Upper Body
+49.5kg 12/4 - CHEST PRESS
+40.5kg 12/4 - FLY/REAR DELT CHEST
+22.5kg 12/4 - FLY/REAR DELT BACK
+58.5kg 12/4 - ROW
+58.5kg 12/4 - LATERAL RAISE
+58.5kg 12/4 - PULLDOWN
+48.75kg 12/4 - Seated Cable Row
+48.75kg 12/4 - Lat Pulldown
+18.75kg 12/4 - Triceps Rope
+18.75kg 12/4 - Pope Hammer Curl
+31.5kg 12/4 - OVERHEAD PRESS
+22.5kg 15/4 - ARM EXTENSION
+22.5kg 15/4 - ARM CURL
+Cardio 30 Minute (Cycling)
+[68] - 18/02/25 🎓🤤
+REST REST REST REST REST REST REST
+[69] - 19/02/25 🎓💪🏼🚲 - PUSH
+40.5kg 12/4 - FLY/REAR DELT CHEST
+49.5kg 12/4 - CHEST PRESS
+31.5kg 12/4 - OVERHEAD PRESS
+30kg 12/4 - Bench Press
+18.75kg 12/4 - Triceps Rope
+21.25kg 12/4 - Triceps Pushdown
+58.5kg 12/4 - LATERAL RAISE
+22.5kg 15/4 - ARM EXTENSION
+Cardio 30 Minute (Cycling)
+[70] - 20/02/25 🎓💪🏼🚲 - PULL + LEG
+72.5kg 12/4 - Lat Pulldown
+72.5kg 12/4 - Seated Cable Row
+18.75kg 12/4 - Pope Hammer Curl
+18.75kg 12/4 - Cable Biceps Curl
+40kg 12/4 - Barbell Row
+22.5kg 15/4 - ARM CURL
+58.5kg 12/4 - LATERAL RAISE
+22.5kg 12/4 - FLY/REAR DELT BACK
+103.5kg 3/1 - ROW
+58.5kg 12/4 - ROW
+58.5kg 12/4 - PULLDOWN
+49.5kg 12/4 - STANDING CALF
+58.5kg 12/4 - HIP ABDUCTION
+67.5kg 12/4 - HIP ADDUCTION
+58.5kg 12/4 - LEG EXTENSION
+49.5kg 12/4 - SEATED LEG CURL
+Cardio 30 Minute (Cycling)
+[71] - 21/02/25 🤤
+REST REST REST REST REST REST REST
+[72] - 22/02/25 🤤
+REST REST REST REST REST REST REST
+[73] - 23/02/25 🚲
+Cardio 60 Minute (Cycling)
+[74] - 24/02/25 🎓💪🏼🚲 - UPPER BODY
+76.5kg 8/4 - ROW
+49.5kg 10/4 - FLY/REAR DELT CHEST
+48.75kg+4 12/4 - Lat Pulldown
+48.75kg+4 12/4 - Seated Cable Row
+18.75kg 12/4 - Pope Hammer Curl
+18.75kg 12/4 - Triceps Rope
+30kg 12/4 - Incline Bench Press
+40kg 8/4 - Incline Bench Press
+18.75kg 12/4 - Triceps Pushdown
+18.75kg 12/4 - Cable Biceps Curl
+45kg 12/4 - Barbell Row
+58.5kg 12/4 - LATERAL RAISE
+40.5kg 8/4 - OVERHEAD PRESS
+67.5kg 8/4 - PULLDOWN
+103.5kg 2/1 - ROW
+31.5kg 10/4 - FLY/REAR DELT BACK
+49.5kg 12/4 - CHEST PRESS
+Cardio 30 Minute (Cycling)
+[75] - 25/02/25 🎓💪🏼🚲 - LOWER BODY
+67.5kg 12/4 - LEG EXTENSION
+49.5kg 12/4 - SEATED LEG CURL
+67.5kg 12/4 - HIP ADDUCTION
+60kg 2/1 - Squat 
+100kg 1/1 - Deadlift
+67.5kg 12/4 - HIP ABDUCTION
+49.5kg 15/4 - STANDING CALF
+18.75kg 12/4 - Triceps Rope
+18.75kg 12/4 - Pope Hammer Curl
+49.5kg 12/3 - ABDOMINAL 
+Cardio 30 Minute (Cycling)
+[76] - 26/02/25 🎓💪🏼 - UPPER BODY
+67.5kg 8/4 - PULLDOWN
+49.5kg 10/4 - FLY/REAR DELT CHEST
+22.5kg 12/4 - FLY/REAR DELT BACK
+49.5kg 12/4 - CHEST PRESS
+48.75kg+4 12/4 - Seated Cable Row
+62.5kg+5 12/4 - Lat Pulldown
+18.75kg 12/4 - Triceps Pushdown
+18.75kg 12/4 - Cable Biceps Curl
+58.5kg 12/4 - LATERAL RAISE
+31.5kg 8/4 - OVERHEAD PRESS
+22.5kg 15/4 - ARM CURL
+76.5kg 8/4 - ROW
+22.5kg 15/4 - ARM EXTENSION
+[77] - 27/02/25 🎓💪🏼 - LOWER BODY + Shoulder
+67.5kg 12/4 - HIP ABDUCTION
+67.5kg 12/4 - HIP ADDUCTION
+67.5kg 12/4 - STANDING CALF
+49.5kg 12/4 - LEG EXTENSION
+58.5kg 12/4 - LATERAL RAISE
+16kg 8/4 - Dumbbell Hammer Curl
+100kg 3/1 - Squat
+100kg 2/1 - Bench Press
+12kg 12/4 - Dumbbell Lateral Raise
+20kg 8/4 - Dumbbell Shoulder Press 
+10kg 10/4 - Dumbbell Front Paise
+[78] - 28/02/25 🤤
+REST REST REST REST REST REST REST
+[79] - 01/03/25 🚙🛵 
+(1:30 Hours) Wash 2 Cars
+[80] - 02/03/25 🤤🐦‍⬛⚫️ 21:30
+REST REST REST REST REST REST REST
+[81] - 03/03/25 🎓💪🏼 - UPPER BODY
+68.75kg 12/4 - Lat Pulldown
+68.75kg+4 12/4 - Seated Cable Row
+23.75kg 10/4 - Triceps Pushdown
+23.75kg 10/4 - Pope Hammer Curl
+31.5kg 10/4 - ARM CURL
+31.5kg 10/4 - ARM EXTENSION
+67.5kg 10/4 - LATERAL RAISE
+58.5kg 6/4 - FLY/REAR DELT CHEST
+85.5kg 6/4 - ROW
+40.5kg 8/4 - OVERHEAD PRESS
+67.5kg 8/4 - PULLDOWN
+30kg 8/2 - Barbell Bench Press
+60kg 1/1 - Barbell Bench Press
+[82] - 04/03/25 🎓💪🏼🚲 - LOWER BODY
+49.5kg 12/4 - LEG EXTENSION
+49.5kg 12/4 - SEATED LEG CURL
+67.5kg 12/4 - HIP ADDUCTION
+67.5kg 12/4 - HIP ABDUCTION
+85.5kg 12/4 - STANDING CALF
+67.5kg 6/4 - ABDOMINAL 
+40.5kg 8/4 - ARM CURL
+26.25kg 10/4 - Triceps Pushdown
+Cardio 30 Minute (Cycling)
+[83] - 05/03/25 🎓💪🏼🚲 - UPPER BODY
+68.75kg+5 12/4 - Lat Pulldown
+68.75kg+5 12/4 - Seated Cable Row
+23.75kg 10/4 - Triceps Rope
+23.75kg 10/4 - Pope Hammer Curl
+40kg 12/4 - Bench Press
+40kg 12/4 - Incline Barbell Bench Press
+58.5kg 8/4 - CHEST PRESS
+85.5kg 6/4 - ROW
+58.5kg 6/4 - FLY/REAR DELT CHEST
+31.5kg 8/4 - FLY/REAR DELT BACK
+67.5kg 10/4 - LATERAL RAISE
+Dumbbell Drop Set - Dumbbell Hammer Curl
+Cardio 20 Minute (Cycling)
+[84] - 06/03/25 🎓💪🏼🚲 - LOWER BODY + Shoulder
+58.5kg 12/4 - LEG EXTENSION
+67.5kg 12/4 - HIP ADDUCTION
+60kg 8/2 - Deadlift
+100kg 2/2 - Deadlift
+Dumbbell Drop Set - Dumbbell Hammer Curl
+67.5kg 12/4 - HIP ABDUCTION
+85.5kg 10/4 - STANDING CALF
+49.5kg 10/2 - SEATED LEG CURL
+40.5kg 12/2 - SEATED LEG CURL
+13.75kg 8/4 - Cable Lateral Raise
+40.5kg 8/4 - ARM CURL
+6.25kg 10/4 - Cable Front Paise
+20kg 8/4 - Dumbbell Shoulder Press 
+40.5kg 8/4 - ARM EXTENSION
+Cardio 30 Minute (Cycling)
+[85] - 07/03/25 🚲
+Cardio 60 Minute (Cycling)
+[86] - 08/03/25 🎓🧐💪🏼🚲 - UPPER BODY
+40kg 12/2 - Incline Bench Press
+50kg 6/2 - Incline Bench Press
+60kg 4/2 - Incline Bench Press
+88.75kg+2 8/4 - Seated Cable Row
+88.75kg+2 8/4 - Lat Pulldown
+60kg 8/3 - Barbell Row
+40kg 10/2 - Bench Press
+50kg 6/2 - Bench Press
+60kg 4/2 - Bench Press
+Dumbbell Drop Set - Dumbbell Hammer Curl
+23.75kg 10/4 - Triceps Rope
+23.75kg 10/4 - Pope Hammer Curl
+28.75kg 8/4 - Triceps Pushdown
+8.75kg 12/4 - Cable Lateral Raise
+Cardio 30 Minute (Cycling)
+[87] - 09/03/25 🤤
+REST REST REST REST REST REST REST
+[88] - 10/03/25 🎓💪🏼🚲 - UPPER BODY
+88.75kg+4 8/4 - Lat Pulldown
+88.75kg+4 8/4 - Seated Cable Row
+40kg 12/2 - Incline Barbell Bench Press
+50kg 8/2 - Incline Barbell Bench Press
+60kg 4/2 - Incline Barbell Bench Press
+70kg 2/2 - Incline Barbell Bench Press
+60kg 8/2 - Barbell Row
+100kg 2/3 - Deadlift
+70kg 6/2 - Barbell Row
+58.5kg 6/4 - FLY/REAR DELT CHEST
+58.5kg 10/4 - LATERAL RAISE
+40.5kg 8/4 - ARM CURL
+76.5kg 6/4 - PULLDOWN
+28.75kg 10/4 - Triceps Pushdown
+58.5kg 10/4 - CHEST PRESS
+40.5kg 6/4 - OVERHEAD PRESS
+85.5kg 6/4 - ROW
+Dumbbell Drop Set - Dumbbell Hammer Curl
+Cardio 30 Minute (Cycling)
+[89] - 11/03/25 🎓💪🏼 - LOWER BODY
+40.5kg 12/4 - SEATED LEG CURL
+60kg 8/4 - Smith Machine Squat
+148.5kg 8/4 - LEG PRESS
+67.5kg 12/4 - HIP ABDUCTION
+67.5kg 12/4 - HIP ADDUCTION
+49.5kg 12/4 - LEG EXTENSION
+40.5kg 15/4 - ABDOMINAL
+67.5kg 12/4 - STANDING CALF
+40.5kg 10/4 - ARM CURL
+[90] - 12/03/25 🎓💪🏼🚲 - UPPER BODY
+113.25kg 8/4 - Lat Pulldown
+113.25kg 8/4 - Seated Cable Row
+60kg 4/4 - Incline Barbell Bench Press
+60kg 4/2 - Smith Machine Bench Press
+80kg 2/3 - Smith Machine Bench Press
+28.75kg 10/4 - Triceps Pushdown
+40.5kg 10/4 - ARM CURL
+23.75kg 10/4 - Triceps Rope
+67.5kg 6/4 - CHEST PRESS
+58.5kg 6/4 - FLY/REAR DELT CHEST
+58.5kg 6/4 - LATERAL RAISE
+85.5kg 8/4 - ROW
+Cardio 20 Minute (Cycling)
+[91] - 13/03/25 🎓💪🏼🚲 - LOWER  + Shoulder
+20kg 12/4 - Dumbbell Shoulder Press
+10kg 12/4 - Dumbbell Lateral Raise
+8kg 10/4 - Dumbbell Front Paise
+8.5kg 12/4 - Cable Lateral Raise
+8.5kg 12/4 - Cable Front Paise
+23.75kg 10/4 - Triceps Rope
+23.75kg 10/4 - Pope Hammer Curl
+220.5kg 8/5 - LEG PRESS
+58.5kg 12/4 - LEG EXTENSION
+58.5kg 12/4 - HIP ABDUCTION
+58.5kg 12/4 - HIP ADDUCTION
+58.5kg 8/4 - SEATED LEG CURL
+67.5kg 12/4 - STANDING CALF
+58.5kg 8/4 - ABDOMINAL
+Cardio 40 Minute (Cycling)
+[92] - 14/03/25 🚲
+Cardio 60 Minute (Cycling)
+[93] - 15/03/25 🚲
+Cardio 60 Minute (Cycling)
+[94] - 16/03/25 🤤
+REST REST REST REST REST REST REST
+[95] - 17/03/25 🎓💪🏼🚲 - UPPER BODY
+63kg 12/4 - High to Low Cable Chest Fly
+40kg 12/4 - Smith Machine Bench Press
+40kg 12/4 - Smith Machine Incline Bench Press
+80kg 2/4 - Smith Machine Row
+97.75kg 12/4 - Lat Pulldown
+97.75kg 8/4 - Seated Cable Row
+49.5kg 8/4 - ARM CURL
+49.5kg 12/4 - LATERAL RAISE
+76.5kg 12/4 - ROW
+40.5kg 8/4 - ARM EXTENSION
+49.5kg 10/4 - FLY/REAR DELT CHEST
+31.5kg 10/4 - FLY/REAR DELT BACK
+31.5kg 10/4 - OVERHEAD PRESS
+49.5kg 8/4 - CHEST PRESS
+Cardio 20 Minute (Cycling)
+[96] - 18/03/25 🎓💪🏼 - LOWER BODY
+220.5kg 8/4 - LEG PRESS
+49.5kg 12/4 - SEATED LEG CURL
+49.5kg 12/4 - LEG EXTENSION
+67.5kg 12/4 - HIP ADDUCTION
+58.5kg 12/4 - HIP ABDUCTION
+67.5kg 12/4 - STANDING CALF
+40.5kg 10/4 - ARM CURL
+36.25kg 6/4 - Triceps Pushdown
+58.5kg 8/4 - ABDOMINAL
+[97] - 19/03/25 🎓💪🏼🚲🕊️23:30 - UPPER BODY
+97.75kg 8/4 - Lat Pulldown
+97.75kg 8/4 - Seated Cable Row
+81kg 8/4 - High to Low Cable Chest Fly
+50kg 8/4 - Smith Machine Incline Bench Press
+70kg 4/4 - Smith Machine Bench Press
+67.5kg 6/4 - CHEST PRESS
+85.5kg 6/4 - ROW
+67.5kg 6/4 - LATERAL RAISE
+36.25kg 6/4 - Triceps Pushdown
+21.25kg 8/4 - Cuffed Cable rear delt fly
+Cardio 30 Minute (Cycling)
+[98] - 20/03/25 🎓💪🏼🚲 - LOWER  + Shoulder
+150kg 1/1 - Deadlift 
+20kg 10/4 - Dumbbell Shoulder Press
+Dumbbell Drop Set - Dumbbell Lateral Raise
+Dumbbell Drop Set - Dumbbell Hammer Curl
+41.25kg 4/4 - Triceps Pushdown
+48.75kg 1/1 - Triceps Pushdown
+26.25kg 12/4 - Triceps Pushdown
+16.25kg 12/4 - Cuffed Cable rear delt fly
+85.5kg 6/4 - HIP ABDUCTION
+85.5kg 6/4 - HIP ADDUCTION
+220.5kg 8/4 - LEG PRESS
+67.5kg 6/4 - ABDOMINAL
+-52.5kg 6/4 - DIP/CHIN ASSIST TRICEPS
+Cardio 30 Minute (Cycling)
+[99] - 21/03/25 🚲
+Cardio 60 Minute (Cycling)
+[100] - 22/03/25 🚲
+Cardio 60 Minute (Cycling)
+[101] - 23/03/25 🚲
+Cardio 60 Minute (Cycling)
+[102] - 24/03/25 🎓💪🏼🚲 - UPPER BODY
+72kg 12/4 - High to Low Cable Chest Flys
+41.25kg 4/4 - Triceps Pushdown
+33.75kg 8/4 - Triceps Pushdown
+60kg 6/2 - Barbell Incline Bench Press
+40.5kg 8/3 - ARM EXTENSION
+97.75kg 10/3 - Seated Cable Row
+97.75kg 8/4 - Wide Grip Lat Pulldown
+20kg 12/4 - Dumbbell Incline Chest Press
+49.5kg 8/3 - ARM CURL
+67.5kg 6/3 - CHEST PRESS
+67.5kg 6/3 - FLY/REAR DELT CHEST
+40.5kg 6/3 - FLY/REAR DELT BACK
+67.5kg 6/3 - LATERAL RAISE
+76.5kg 6/3 - ROW
+Cardio 30 Minute (Cycling)
+[103] - 25/03/25 🎓💪🏼 - LOWER BODY
+100kg 6/3 - Deadlift
+140kg 1/3 - Deadlift
+220.5kg 6/2 - LEG PRESS
+67.5kg 10/3 - HIP ABDUCTION
+58.5kg 8/3 - ABDOMINAL
+31.25kg 8/2 - Triceps Rope
+60kg 4/3 - Smith Machine Incline Bench Press
+60kg 4/3 - Smith Machine Bench Press
+Dumbbell Drop Set - Dumbbell Hammer Curl
+[104] - 26/03/25 🎓💪🏼🚲 - UPPER BODY
+81kg 10/3 - High to Low Cable Chest Flys
+97.75kg 8/4 - Wide Grip Lat Pulldown
+97.75kg 8/4 - Seated Cable Row
+60kg 6/3 - Smith Machine Incline Bench Press
+60kg 6/3 - Smith Machine Bench Press
+80kg 6/3 - Smith Machine Row
+36.25kg 6/3 - Triceps Pushdown
+-52.5kg 6/3 - DIP/CHIN ASSIST TRICEPS
+28.75kg 10/3 - Triceps Pushdown
+21.25kg 8/3 - Cuffed Cable Rear Delt Fly
+20kg 10/3 - Dumbbell Incline Chest Press
+58.5kg 8/3 - FLY/REAR DELT CHEST
+85.5kg 6/3 - ROW
+58.5kg 8/3 - CHEST PRESS
+Cardio 30 Minute (Cycling)
+[105] - 27/03/25 🎓💪🏼🚲 - FULL BODY
+60kg 6/3 - Smith Machine Incline Bench Press
+60kg 6/3 - Smith Machine Bench Press
+80kg 6/3 - Smith Machine Row
+97.75kg 10/3 - Wide Grip Lat Pulldown
+97.75kg 10/3 - Seated Cable Row
+100kg 6/2 - Deadlift
+100kg 4/2 - Smith Machine Squat
+20kg 10/3 - Dumbbell Incline Chest Press
+20kg 10/3 - Dumbbell Shoulder Press
+81kg 8/3 - High to Low Cable Chest Flys
+58.5kg 6/3 - CHEST PRESS
+85.5kg 6/3 - ROW
+58.5kg 6/3 - FLY/REAR DELT CHEST
+67.5kg 6/3 - LATERAL RAISE
+40.5kg 6/3 - FLY/REAR DELT BACK
+76.5kg 6/3 - SINGLE ARM PULLDOWN
+40.5kg 6/3 - OVERHEAD PRESS
+-52.5kg 6/3 - DIP/CHIN ASSIST TRICEPS
+Dumbbell Drop Set - Dumbbell Hammer Curl
+Dumbbell Drop Set - Dumbbell Lateral Raise
+220.5kg 10/3 - LEG PRESS
+58.5kg 8/3 - SEATED LEG CURL
+67.5kg 8/3 - HIP ABDUCTION
+67.5kg 8/3 - HIP ADDUCTION
+58.5kg 8/3 - LEG EXTENSION
+36.25kg 6/3 - Triceps Pushdown
+67.5kg 6/3 - ABDOMINAL
+Cardio 30 Minute (Cycling)
+[106] - 28/03/25 🚲
+Cardio 60 Minute (Cycling)
+[107] - 29/03/25 🚲
+Cardio 60 Minute (Cycling)
+[108] - 30/03/25 🚲
+Cardio 60 Minute (Cycling)
+[109] - 31/03/25 🎓 🚲
+Cardio 60 Minute (Cycling)
+[110] - 01/04/25 🎓 🚲
+Cardio 60 Minute (Cycling)
+[111] - 02/04/25 🎓 🚲
+Cardio 60/60 Minute (Cycling)
+[112] - 03/04/25 🎓 🚲
+Cardio 60 Minute (Cycling)
+[113] - 04/04/25 🚲
+Cardio 120 Minute (Cycling)
+[114] - 05/04/25 🚲
+Cardio 120 Minute (Cycling)
+[115] - 06/04/25 🚲
+Cardio 120 Minute (Cycling)
+[116] - 07/04/25 🚲
+Cardio 60 Minute (Cycling)
+[117] - 08/04/25 🚲
+Cardio 60 Minute (Cycling)
+[118] - 09/04/25 🚲
+Cardio 60 Minute (Cycling)
+[119] - 10/04/25 🚲
+Cardio 60 Minute (Cycling)
+[120] - 11/04/25 🚲
+Cardio 60 Minute (Cycling)
+[121] - 12/04/25 🚲
+Cardio 60 Minute (Cycling)
+[122] - 13/04/25 🚲
+Cardio 60 Minute (Cycling)
+[123] - 14/04/25 🚲
+Cardio 60 Minute (Cycling)
+[124] - 15/04/25 🚲
+Cardio 30 Minute (Cycling)
+[125] - 16/04/25 🤤
+REST REST REST REST REST REST REST
+[126] - 17/04/25 🚲
+Cardio 60 Minute (Cycling)
+[127] - 18/04/25 🚲
+Cardio 60 Minute (Cycling)
+[128] - 19/04/25 🚲
+Cardio 60 Minute (Cycling)
+[129] - 20/04/25 🚲
+Cardio 60 Minute (Cycling)
+[130] - 21/04/25 🎓🫩🤤
+REST REST REST REST REST REST REST
+[131] - 22/04/25 🎓🫩🤤
+REST REST REST REST REST REST REST
+[132] - 23/04/25 🎓🫩🤤
+REST REST REST REST REST REST REST
+[133] - 24/04/25 🎓🫩🤤
+REST REST REST REST REST REST REST
+[134] - 25/04/25 🎓🫩🤤
+REST REST REST REST REST REST REST
+[135] - 26/04/25 🎓🫩🤤
+REST REST REST REST REST REST REST
+[136] - 27/04/25 🚲
+Cardio 60 Minute (Cycling)
+[137] - 28/04/25 🤤
+REST REST REST REST REST REST REST
+[138] - 29/04/25 🚲
+Cardio 60 Minute (Cycling)
+[139] - 30/04/25 🚲
+Cardio 60/90 Minute (Cycling)
+[140] - 01/05/25 🚲
+Cardio 60 Minute (Cycling)
+[141] - 02/05/25 🤨✍️🚲
+Cardio 60 Minute (Cycling)
+[142] - 03/05/25 🚲
+Cardio 60 Minute (Cycling)
+[143] - 04/05/25 🚲
+Cardio 60 Minute (Cycling)
+[144] - 05/05/25 🤤
+REST REST REST REST REST REST REST
+[145] - 06/05/25 🤨✍️ 🤤
+REST REST REST REST REST REST REST
+[146] - 07/05/25 🤤
+REST REST REST REST REST REST REST
+[147] - 08/05/25 🤨✍️ 🤤
+REST REST REST REST REST REST REST
+[148] - 09/05/25 💪🏼📕🥊 - PUSH
+160lbs 10/4 - High to Low Cable Chest Flys
+90lbs 12/4 - Triceps Pushdown
+50lbs 12/4 - Smith Machine Incline Bench Press
+50lbs 12/4 - Smith Machine Bench Press
+50lbs 12/4 - Incline Machine Press
+110lbs 12/4 - Chest Press
+80lbs 12/4 - Pectoral
+60lbs 12/4 - Military Press
+70lbs 12/4 - Triceps Rope
+Cardio 10 Minute (Boxing)
+[149] - 10/05/25 💪🏼📕🥊🏃🚶 - PULL
+120lbs 12/4 - Wide Grip Lat Pulldown
+80lbs 12/4 - Rear Deltoid
+140lbs 10/4 - Compound Row
+90lbs 10/4 - Smith Machine Row
+140lbs 12/4 - Seated Cable Row
+50lbs 10/4 - Biceps Exercise
+60lbs 8/4 - Rope Hammer Curl
+60lbs 8/4 - Cable Biceps Curl
+Cardio 10 Minute (Boxing)
+Cardio 10 Minute (Jogging)
+Cardio 5 Minute (Elliptical)
+[150] - 11/05/25 💪🏼📕🥊🏃 - LEG
+90lbs 12/4 - Smith Machine Squat
+5usa 12/4 - Adductor 
+10usa 15/4 - Abductor
+88lbs 10/4 - Hack Squat
+338lbs 12/4 - Leg Press
+100lbs 8/4 - Leg Extension
+Cardio 10 Minute (Boxing)
+Cardio 5 Minute (Jogging)
+[151] - 12/05/25 💪🏼📕🥊 - PUSH
+70lbs 12/4 - Smith Machine Incline Bench Press
+70lbs 12/4 - Smith Machine Bench Press
+50lbs 12/4 - Smith Machine Shoulder Press
+100lbs 12/4 - Triceps Pushdown
+50lbs 12/4 - Incline Machine Press
+80lbs 12/4 - Pectoral
+110lbs 12/4 - Chest Press
+60lbs 10/4 - Military Press
+70lbs 10/4 - Triceps Rope
+20lbs 12/4 - Dumbbell Lateral Raise
+Cardio 20 Minute (Boxing)
+[152] - 13/05/25 💪🏼📕🥊 - PULL
+100lbs 12/4 - Wide Grip Lat Pulldown
+100lbs 12/4 - Close Grip Lat Pulldown
+125lbs 12/4 - Compound Row
+88lbs 12/4 - T-bar Row
+140lbs 12/4 - Seated Cable Row
+60lbs 12/4 - Cable Biceps Curl
+60lbs 12/4 - Rope Hammer Curl
+60lbs 12/4 - Rear Deltoid
+50lbs 12/4 - Biceps Exercise
+Cardio 30 Minute (Boxing)
+[153] - 14/05/25 💪🏼📕🥊 - PUSH
+90lbs 12/4 - Smith Machine Incline Bench Press
+90lbs 10/4 - Smith Machine Bench Press
+50lbs 10/4 - Smith Machine Shoulder Press
+100lbs 12/4 - Triceps Pushdown
+70lbs 10/4 - Incline Machine Press
+100lbs 10/4 - Pectoral
+60lbs 10/4 - Military Press
+125lbs 12/4 - Chest Press
+70lbs 12/4 - Triceps Rope
+20lbs 12/4 - Dumbbell Lateral Raise
+Cardio 20 Minute (Boxing)
+[154] - 15/05/25 💪🏼📕🥊 - PULL
+108lbs 12/4 - Smith Machine Row
+70lbs 12/4 - Rope Hammer Curl
+100lbs 12/4 - Wide Grip Lat Pulldown
+100lbs 12/4 - Close Grip Lat Pulldown
+125lbs 12/4 - Compound Row
+80lbs 10/4 - Biceps Exercise
+200lbs 12/4 - Seated Cable Row
+80lbs 10/4 - Cable Biceps Curl
+60lbs 12/4 - Rear Deltoid
+Cardio 30 Minute (Boxing)
+[155] - 16/05/25 💪🏼📕🥊 - LEG
+110lbs 8/4 - Smith Machine Squat
+60lbs 12/4 - Prone Leg Curl
+220lbs 12/4 - Calf Press
+396lbs 10/4 - Leg Press
+5usa 12/4 - Adductor
+10usa 12/4 - Abductor
+60lbs 10/4 - Leg Extension
+Cardio 30 Minute (Boxing)
+[156] - 17/05/25 💪🏼📕🥊 - PUSH
+110lbs 8/4 - Smith Machine Incline Bench Press
+90lbs 10/4 - Smith Machine Bench Press
+50lbs 12/4 - Smith Machine Shoulder Press
+120lbs 8/4 - Triceps Pushdown
+90lbs 8/4 - Incline Machine Press
+100lbs 10/4 - Pectoral
+80lbs 8/4 - Military Press
+155lbs 10/4 - Chest Press
+100lbs 10/4 - Triceps Rope
+70lbs 12/4 - Face Pull
+Cardio 30 Minute (Boxing)
+[157] - 18/05/25 🤒🤤
+REST REST REST REST REST REST REST
+[158] - 19/05/25 💪🏼📕🥊 - PULL
+140lbs 8/4 - Wide Grip Lat Pulldown
+140lbs 8/4 - Close Grip Lat Pulldown
+100lbs 10/4 - Rope Hammer Curl
+155lbs 8/4 - Compound Row
+100lbs 8/4 - Face Pull
+100lbs 10/4 - T-bar Row
+100lbs 10/4 - Smith Machine Row
+100lbs 8/4 - Cable Biceps Curl
+100lbs 15/2 - Forearm Pushdown
+200lbs 12/4 - Seated Cable Row
+100lbs 8/4 - Biceps Exercise
+Cardio 30 Minute (Boxing)
+[159] - 20/05/25 💪🏼📕🥊 - LEG
+140lbs 10/4 - Hack Squat
+5usa 12/4 - Adductor
+10usa 12/4 - Abductor
+488lbs 12/4 - Calf Press
+576lbs 8/4 - Leg Press
+80lbs 10/4 - Prone Leg Curl
+45lbs 15/4 - Dumbbell Shrug
+Cardio 30 Minute (Boxing)
+[160] - 21/05/25 💪🏼📕🥊 - PUSH
+120lbs 8/4 - Smith Machine Incline Bench Press
+80lbs 8/4 - Smith Machine Shoulder Press
+120lbs 8/4 - Triceps Pushdown
+80lbs 12/4 - Face Pull
+100lbs 12/4 - Pectoral
+100lbs 10/4 - Rear Deltoid
+200lbs 8/4 - Chest Press
+80lbs 8/4 - Military Press
+100lbs 8/4 - Incline Machine Press
+100lbs 10/4 - Triceps Rope
+30lbs 8/4 - Dumbbell Lateral Raise
+140lbs 15/4 - Forearm Pushdown
+55lbs 10/4 - Dumbbell Shrug
+Cardio 30 Minute (Boxing)
+[161] - 22/05/25 💪🏼📕🥊 - PULL
+150lbs 8/4 - Wide Grip Lat Pulldown
+150lbs 8/4 - Close Grip Lat Pulldown
+100lbs 8/4 - Rope Hammer Curl
+80lbs 15/4 - Face Pull
+155lbs 8/4 - Compound Row
+100lbs 8/4 - Cable Biceps Curl
+50lbs 15/4 - Smith Machine Shoulder Press
+100lbs 8/4 - T-bar Row
+140lbs 20/4 - Forearm Pushdown
+200lbs 12/4 - Seated Cable Row
+30lbs 20/4 - Dumbbell Shrug
+Cardio 30 Minute (Boxing)
+[162] - 23/05/25 💪🏼📕🥊 - LEG
+140lbs 8/4 - Smith Machine Squat
+190lbs 12/4 - Smith Machine Calf
+5usa 12/4 - Adductor
+10usa 12/4 - Abductor
+80lbs 12/4 - Leg Extension
+374lbs 12/4 - Leg Press
+80lbs 10/4 - Prone Leg Curl
+50lbs 20/4 - Rear Deltoid
+140lbs 20/4 - Forearm Pushdown
+80lbs 15/4 - Face Pull
+30lbs 20/4 - Dumbbell Shrug
+50lbs 15/4 - Military Press
+Cardio 30 Minute (Boxing)
+[163] - 24/05/25 💪🏼📕🚲🥊 - PUSH
+90lbs 12/4 - Smith Machine Bench Press
+80lbs 8/4 - Smith Machine Shoulder Press
+120lbs 10/4 - Triceps Pushdown
+100lbs 10/4 - Face Pull
+100lbs 10/4 - Incline Machine Press
+160lbs 15/4 - Forearm Pushdown
+200lbs 8/4 - Chest Press
+100lbs 10/4 - Pectoral
+100lbs 10/4 - Rear Deltoid
+100lbs 10/4 - Triceps Rope
+25lbs 10/4 - Dumbbell Lateral Raise
+50lbs 15/4 - Dumbbell Shrug
+80lbs 10/4 - Military Press
+Cardio 10 Minute (Cycling)
+Cardio 20 Minute (Boxing)
+[164] - 25/05/25 💪🏼📕🚲 - PULL
+150lbs 8/4 - Wide Grip Lat Pulldown
+150lbs 8/4 - Close Grip Lat Pulldown
+100lbs 8/4 - Rope Hammer Curl
+170lbs 12/4 - Sam Sulek Back Finisher
+100lbs 8/4 - T-bar Row
+100lbs 10/4 - Face Pull
+200lbs 12/4 - Seated Cable Row
+100lbs 10/4 - Cable Biceps Curl
+160lbs 15/4 - Forearm Pushdown
+155lbs 8/4 - Compound Row
+50lbs 15/4 - Dumbbell Shrug
+Cardio 30 Minute (Cycling)
+[165] - 26/05/25 🪪🚗🤤
+REST REST REST REST REST REST REST
+[166] - 27/05/25 💪🏼📕🥊 - LEG +  BACK
+110lbs 10/4 - Smith Machine Squat
+198lbs 12/4 - Smith Machine Calf
+486lbs 10/4 - Leg Press
+100lbs 10/4 - Cable Biceps Curl
+100lbs 12/4 - Face Pull
+120lbs 10/4 - Leg Extension
+6usa 12/4 - Adductor
+10usa 12/4 - Abductor
+80lbs 10/4 - Military Press
+80lbs 10/4 - Prone Leg Curl
+170lbs 12/4 - Sam Sulek Back Finisher
+120lbs 10/4 - Single Arm Cable Row
+60lbs 12/4 - Dumbbell Shrug
+Cardio 30 Minute (Boxing)
+[167] - 28/05/25 💪🏼📕🥊 - PUSH
+100lbs 12/4 - Smith Machine Incline Bench Press
+90lbs 8/4 - Smith Machine Shoulder Press
+140lbs 8/4 - Triceps Pushdown
+100lbs 12/4 - Face Pull
+100lbs 10/4 - Incline Machine Press
+120lbs 8/4 - Pectoral
+100lbs 10/4 - Rear Deltoid
+100lbs 10/4 - Triceps Rope
+200lbs 10/4 - Chest Press
+80lbs 10/4 - Military Press
+25lbs 12/6 - Dumbbell Lateral Raise
+60lbs 12/4 - Dumbbell Shrug
+Cardio 30 Minute (Boxing)
+[168] - 29/05/25 💪🏼📕🥊 - PULL
+100lbs 10/4 - T-bar Row
+100lbs 10/4 - Cable Biceps Curl
+120lbs 10/4 - Single Arm Cable Row
+100lbs 12/4 - Face Pull
+140lbs 10/4 - Compound Row
+150lbs 8/4 - Wide Grip Lat Pulldown
+200lbs 12/4 - Wide Grip Cable Row
+100lbs 10/4 - Rope Hammer Curl
+120lbs 10/4 - Close Grip Lat Pulldown
+200lbs 10/4 - Sam Sulek Back Finisher
+60lbs 12/4 - Dumbbell Shrug
+Cardio 30 Minute (Boxing)
+[169] - 30/05/25 💪🏼📕🥊🚲 - LEG
+354lbs 10/4 - Reverse Hack Squat
+514lbs 8/4 - Leg Press
+6usa 12/4 - Adductor
+10usa 15/4 - Abductor
+120lbs 12/4 - Leg Extension
+100lbs 10/4 - Cable Biceps Curl
+120lbs 10/4 - Face Pull
+228lbs 12/4 - Smith Machine Calf
+100lbs 8/4 - Biceps Exercise
+60lbs 12/4 - Dumbbell Shrug
+80lbs 12/4 - Prone Leg Curl
+Cardio 15 Minute (Boxing)
+Cardio 20 Minute (Cycling)
+[170] - 31/05/25 💪🏼📕🥊🚲 - PUSH
+110lbs 8/4 - Smith Machine Bench Press
+90lbs 8/4 - Smith Machine Shoulder Press
+140lbs 8/4 - Triceps Pushdown
+120lbs 10/4 - Face Pull
+110lbs 10/4 - Incline Machine Press
+100lbs 10/4 - Triceps Rope
+120lbs 8/4 - Pectoral
+100lbs 12/4 - Rear Deltoid
+200lbs 10/4 - Chest Press
+80lbs 10/4 - Military Press
+25lbs 12/5 - Dumbbell Lateral Raise
+60lbs 12/4 - Dumbbell Shrug
+Cardio 20 Minute (Boxing)
+Cardio 40 Minute (Cycling)
+[171] - 01/06/25 💪🏼📕🚲 - PULL
+150lbs 8/4 - Wide Grip Lat Pulldown
+150lbs 8/4 - Close Grip Lat Pulldown
+100lbs 10/4 - Cable Biceps Curl
+200lbs 12/4 - Wide Grip Cable Row
+100lbs 10/4 - T-bar Row
+120lbs 10/4 - Face Pull
+120lbs 10/4 - Single Arm Cable Row
+100lbs 10/4 - Rope Hammer Curl
+170lbs 12/4 - Sam Sulek Back Finisher
+Cardio 30 Minute (Cycling)
+[172] - 02/06/25 💪🏼📕💇 - LEG
+376lbs 10/4 - Reverse Hack Squat
+536lbs 10/4 - Leg Press
+228lbs 12/4 - Smith Machine Calf
+6usa 12/4 - Adductor
+10usa 15/4 - Abductor
+80lbs 12/4 - Biceps Exercise
+150lbs 12/4 - Leg Extension
+100lbs 8/4 - Prone Leg Curl
+[173] - 03/06/25 💪🏼📕🚲 - PUSH
+120lbs 10/4 - High to Low Cable Chest Flys
+120lbs 8/4 - Overhead Cable Triceps Extension
+100lbs 10/4 - Smith Machine Incline Bench Press
+140lbs 8/4 - Triceps Pushdown
+110lbs 10/4 - Incline Machine Press
+30lbs 12/4 - Single Arm Triceps Pushdown
+120lbs 10/4 - Pectoral
+80lbs 10/4 - Military Press
+100lbs 10/4 - Triceps Rope
+25lbs 12/6 - Dumbbell Lateral Raise
+200lbs 10/4 - Chest Press
+Cardio 30 Minute (Cycling)
+[174] - 04/06/25 🪖💪🏼📕🚲 - PULL
+150lbs 8/4 - Wide Grip Lat Pulldown
+150lbs 8/4 - Close Grip Lat Pulldown
+200lbs 12/4 - Wide Grip Cable Row
+120lbs 8/4 - Overhead Cable Triceps Extension
+100lbs 10/4 - Cable Biceps Curl
+120lbs 8/4 - Rear Deltoid
+100lbs 10/4 - T-bar Row
+120lbs 10/4 - Face Pull
+120lbs 10/4 - Single Arm Cable Row
+100lbs 10/4 - Rope Hammer Curl
+170lbs 12/4 - Sam Sulek Back Finisher
+25lbs 10/4 - Dumbbel Bicep Curl
+Cardio 30 Minute (Cycling)
+[175] - 05/06/25 💪🏼📕🚲 - LEG
+426lbs 8/4 - Reverse Hack Squat
+576lbs 8/4 - Leg Press
+228lbs 10/4 - Smith Machine Calf
+150lbs 12/4 - Leg Extension
+6usa 12/4 - Adductor
+10usa 12/4 - Abductor
+50lbs 12/4 - Prone Single Leg Curl
+25lbs 10/4 - Dumbbel Bicep Curl
+60lbs 12/4 - Dumbbell Shrug
+Cardio 30 Minute (Cycling)
+[176] - 06/06/25 💪🏼📕🚲 - PUSH
+160lbs 8/4 - High to Low Cable Chest Flys
+90lbs 12/4 - Smith Machine Bench Press
+120lbs 8/4 - Overhead Cable Triceps Extension
+140lbs 6/4 - Incline Machine Press
+140lbs 8/4 - Triceps Pushdown
+60lbs 12/4 - X Triceps Extension 
+40lbs 10/4 - Dumbbell Chest Press
+130lbs 8/4 - Pectoral
+80lbs 10/4 - Military Press
+100lbs 10/4 - Triceps Rope
+25lbs 12/6 - Dumbbell Lateral Raise
+Cardio 30 Minute (Cycling)
+[177] - 07/06/25 💪🏼📕🚲 - PULL
+150lbs 8/4 - Wide Grip Lat Pulldown
+150lbs 8/4 - Close Grip Lat Pulldown
+200lbs 12/4 - Wide Grip Cable Row
+100lbs 10/4 - Cable Biceps Curl
+120lbs 8/4 - Rear Deltoid
+100lbs 10/4 - T-bar Row
+120lbs 10/4 - Face Pull
+120lbs 10/4 - Single Arm Cable Row
+100lbs 8/4 - Rope Hammer Curl
+170lbs 12/4 - Sam Sulek Back Finisher
+35lbs 8/4 - Dumbbel Bicep Curl
+Cardio 30 Minute (Cycling)
+[178] - 08/06/25 🤤
+REST REST REST DOMS REST REST REST
+[179] - 09/06/25 💪🏼📕🚲 - LEG + ISOLATION
+198lbs 8/4 - Hack Squat
+564lbs 8/4 - Leg Press
+110lbs 8/4 - Military Press
+100lbs 8/4 - Prone Single Leg Curl
+35lbs 8/4 - Dumbbel Bicep Curl
+120lbs 8/4 - Overhead Cable Triceps Extension
+100lbs 10/4 - Cable Biceps Curl
+120lbs 10/4 - Face Pull
+200lbs 12/4 - Sam Sulek Back Finisher
+80lbs 8/4 - X Triceps Extension
+50lbs 12/4 - Dumbbell Shrug
+150lbs 12/4 - Leg Extension
+Cardio 30 Minute (Cycling)
+[180] - 10/06/25 🎓💪🏼📕🤤
+REST REST REST FREESTYLE REST REST REST
+[181] - 11/06/25 💪🏼📕🚲 - PUSH
+160lbs 8/4 - High to Low Cable Chest Flys
+40lbs 10/4 - Dumbbell Incline Chest Press
+120lbs 4/4 - Smith Machine Incline Bench Press
+120lbs 8/4 - Overhead Cable Triceps Extension
+130lbs 8/4 - Pectoral
+80lbs 8/4 - X Triceps Extension
+120lbs 6/4 - Incline Machine Press
+140lbs 8/4 - Triceps Pushdown
+35lbs 8/4 - Dumbbell Lateral Raise
+100lbs 10/4 - Triceps Rope
+110lbs 8/4 - Military Press
+Cardio 30 Minute (Cycling)
+[182] - 12/06/25 💪🏼📕🚲 - PULL
+150lbs 10/4 - Wide Grip Lat Pulldown
+150lbs 10/4 - Close Grip Lat Pulldown
+200lbs 12/4 - Wide Grip Cable Row
+100lbs 10/4 - Cable Biceps Curl
+120lbs 8/4 - Rear Deltoid
+100lbs 8/4 - Rope Hammer Curl
+135lbs 8/4 - Barbell Row
+120lbs 10/4 - Face Pull
+120lbs 10/4 - Single Arm Cable Row
+200lbs 10/4 - Sam Sulek Back Finisher
+35lbs 8/4 - Dumbbel Bicep Curl
+Cardio 30 Minute (Cycling)
+[183] - 13/06/25 💪🏼📕🚲 - LEG
+374lbs 12/4 - Reverse Hack Squat
+514lbs 10/4 - Leg Press
+228lbs 10/4 - Smith Machine Calf
+35lbs 8/4 - Dumbbell Bicep Curl
+150lbs 12/4 - Leg Extension
+6usa 12/4 - Adductor
+10usa 12/4 - Abductor
+80lbs 10/4 - Prone Leg Curl
+200lbs 12/4 - Cable Shrug
+Cardio 30 Minute (Cycling)
+[184] - 14/06/25 💪🏼📕🚲 - PUSH
+55lbs 8/4 - Dumbbell Incline Chest Press
+110lbs 8/4 - Smith Machine Incline Bench Press
+140lbs 8/4 - High to Low Cable Chest Flys
+35lbs 8/4 - Dumbbell Lateral Raise
+120lbs 8/4 - Overhead Cable Triceps Extension
+120lbs 8/4 - Incline Machine Press
+150lbs 8/4 - Triceps Pushdown
+200lbs [FULL STACK] 10/4 - Chest Press
+110lbs 8/4 - Military Press
+100lbs 10/4 - Triceps Rope
+Cardio 30 Minute (Cycling)
+[185] - 15/06/25 💪🏼📕🚲 - PULL
+150lbs 10/4 - Wide Grip Lat Pulldown
+150lbs 10/4 - Close Grip Lat Pulldown
+200lbs 12/4 - Wide Grip Cable Row
+130lbs 8/4 - Single Arm Cable Row
+135lbs 8/4 - Barbell Row
+35lbs 8/4 - Dumbbell Bicep Curl
+35lbs 8/4 - Dumbbell Hammer Curl
+120lbs 8/4 - Rear Deltoid
+120lbs 12/4 - Face Pull
+170lbs 12/4 - Sam Sulek Back Finisher
+Cardio 30 Minute (Cycling)
+[186] - 16/06/25 🎓💪🏼🤤
+REST REST REST FREESTYLE REST REST REST
+[187] - 17/06/25 🎓💪🏼🤤
+REST REST REST FREESTYLE REST REST REST
+[188] - 18/06/25 💪🏼📕🚲 - PUSH [A]
+135lbs 6/4 - Barbell Incline Bench Press
+55lbs 8/4 - Dumbbell Incline Chest Press
+140lbs 8/4 - High to Low Cable Chest Flys
+130lbs 10/4 - Overhead Cable Triceps Extension
+150lbs 8/4 - Triceps Pushdown
+200lbs [FULL STACK] 12/4 - Chest Press
+120lbs 10/4 - Pectoral
+35lbs 8/4 | 20lbs 8/4 - Dumbbell Lateral Raise
+110lbs 8/4 - Military Press
+Cardio 30 Minute (Cycling)
+Cardio 30 Minute (Elliptical)
+[189] - 19/06/25 💪🏼📕🚲 - PULL [A]
+150lbs 10/4 - Wide Grip Lat Pulldown
+200lbs 12/4 - Wide Grip Cable Row
+130lbs 8/4 - Single Arm Cable Row
+200lbs 12/4 - Sam Sulek Back Finisher
+120lbs 12/4 - Face Pull
+100lbs 10/4 - Cable Biceps Curl
+100lbs 8/4 - Rope Hammer Curl
+120lbs 8/4 - Rear Deltoid
+Cardio 60 Minute (Elliptical)
+[190] - 20/06/25 💪🏼📕🚲 - LEG
+266lbs 8/4 - Hack Squat
+516lbs 10/4 - Leg Press
+6usa 12/4 - Adductor
+10usa [FULL STACK] 15/4 - Abductor
+100lbs 8/4 - Prone Leg Curl
+150lbs 12/4 - Leg Extension
+200lbs 12/4 - Cable Shrug
+Cardio 30 Minute (Elliptical)
+Cardio 30 Minute (Cycling)
+[191] - 21/06/25 💪🏼📕🚲 - PUSH [B]
+135lbs 8/4 - Barbell Incline Bench Press
+120lbs 10/4 - High to Low Cable Chest Flys
+140lbs 8/4 - Incline Machine Press
+150lbs 8/4 - Overhead Cable Triceps Extension
+80lbs 10/4 - Triceps Rope
+90lbs 8/4 - Smith Machine Shoulder Press
+120lbs 10/4 - Pectoral
+200lbs [FULL STACK] 12/4 - Chest Press
+35lbs 8/4 & 20lbs 8/4 - Dumbbell Lateral Raise
+Cardio 40 Minute (Elliptical)
+Cardio 20 Minute (Cycling)
+[192] - 22/06/25 💪🏼📕🚲 - PULL [B]
+180lbs 8/4 - Smith Machine Row
+130lbs 8/4 - Single Arm Cable Row
+120lbs 12/4 - Face Pull
+170lbs 12/4 - Sam Sulek Back Finisher
+150lbs 10/4 - Close Grip Lat Pulldown
+120lbs 8/4 - Rear Deltoid
+50lbs 10/4 - EZ Barbell Curl
+25lbs 10/4 - Dumbbell Bicep Curl
+Drop Set 2 - Dumbbell Hammer Curl
+Cardio 60 Minute (Elliptical)
+[193] - 23/06/25 🎓🤤
+REST REST REST REST REST REST REST
+[194] - 24/06/25 🎓💪🏼🤤
+REST REST REST FREESTYLE REST REST REST
+[195] - 25/06/25 💪🏼📕🚲 - PUSH
+135lbs 8/4 - Barbell Incline Bench Press
+55lbs 8/4 - Dumbbell Incline Chest Press
+120lbs 10/4 - High to Low Cable Chest Flys
+120lbs 10/4 - Pectoral
+150lbs 8/4 - Overhead Cable Triceps Extension
+150lbs 8/4 - Triceps Pushdown
+200lbs [FULL STACK] 12/4 - Chest Press
+110lbs 8/4 - Military Press
+SSET 35,20lbs 8,10/4 Dumbbell Lateral Raise
+Cardio 30 Minute (Cycling)
+Cardio 30 Minute (Elliptical)
+[196] - 26/06/25 💪🏼📕🚲 - PULL
+150lbs 10/4 - Wide Grip Lat Pulldown
+200lbs 12/4 - Wide Grip Cable Row
+130lbs 8/4 - Single Arm Cable Row
+200lbs 12/4 - Sam Sulek Back Finisher
+120lbs 10/4 - Face Pull
+SSET 100lbs 10/4 - Cable Biceps Curl
+SSET 50lbs 10/4 - EZ Barbell Curl
+100lbs 8/4 - Rope Hammer Curl
+100lbs 10/4 - Rear Deltoid
+Cardio 60 Minute (Elliptical)
+[197] - 27/06/25 💪🏼📕🚲 - LEG
+604lbs 8/3 - Leg Press
+140lbs 8/3 - Smith Machine RDL
+374lbs 8/3 - Reverse Hack Squat
+100lbs 10/3 - Leg Extension
+SSET 200lbs 8/3 - Cable Shrug
+PSSET 55,60,65lbs 8,6,4/3 - Dumbbell Shrug
+70lbs 6/3 - Prone Single Leg Curl
+Cardio 60 Minute (Elliptical)
+[198] - 28/06/25 🎓 💪🏼📕🚲 - CHEST BACK
+135lbs 8/4 - Barbell Incline Bench Press
+60lbs 7/4 - Dumbbell Incline Chest Press
+140lbs 6-8/4 - Incline Machine Press
+120lbs 12/4 - Close Grip Lat Pulldown
+200lbs 12/4 - Close Grip Cable Row
+200lbs 12/4 - Sam Sulek Back Finisher
+Cardio 60 Minute (Elliptical)
+[199] - 29/06/25 💪🏼📕🚲 - SHOULDER ARM
+90lbs 10/4 - Smith Machine Shoulder Press
+60lbs 12/4 - Smith Machine Jm Press
+150lbs 8/4 - Triceps Pushdown
+150lbs 6/5 - Overhead Cable Triceps Extension
+SSET 25lbs 10/4 - Dumbbell Bicep Curl
+SSET 50lbs 10/4 - EZ Barbell Curl
+DSET 25,20,15lbs 10/4 - DB Hammer Curl
+DSET 35,20lbs 10/4 - DB Lateral Raise
+100lbs 12/4 - Rear Deltoid
+Cardio 15 Minute (Cycling)
+Cardio 45 Minute (Elliptical)
+[200] - 30/06/25 🎓💪🏼🤤
+REST REST REST FREESTYLE REST REST REST
+[201] - 01/07/25 🎓👨🏻‍🏫🤤
+REST REST REST REST REST REST REST
+[202] - 02/07/25 💪🏼📕🫀- PUSH
+135lbs 8/4 - Barbell Incline Bench Press
+100lbs 10/4 - High to Low Cable Chest Flys
+55lbs 8/4 - Dumbbell Incline Chest Press
+150lbs 8/4 - Triceps Pushdown
+150lbs 8/4 - Overhead Cable Triceps Extension
+110lbs 8/4 - Military Press
+200lbs [FULL STACK] 10/4 - Chest Press
+100lbs 10/4 - Pectoral
+20lbs 12/4 Dumbbell Lateral Raise
+Cardio 60 Minute (Elliptical)
+[203] - 03/07/25 💪🏼📕🫀- PULL
+100lbs 12/4 - Single Arm Cable Row
+170lbs 15/4 - Sam Sulek Back Finisher
+130lbs 12/4 - Wide Grip Lat Pulldown
+170lbs 15/4 - Wide Grip Cable Row
+SSET 100lbs 10/4 - Cable Biceps Curl
+SSET 50lbs 10/4 - EZ Barbell Curl
+80lbs 12/4 - Rope Hammer Curl
+80lbs 15/4 - Face Pull
+100lbs 12/4 - Rear Deltoid
+Cardio 60 Minute (Elliptical)
+[204] - 04/07/25 💪🏼📕🫀- LEG
+266lbs 8/3 - Hack Squat
+55lbs 10/4 - Dumbbell RDL
+70lbs 10/3 - Prone Leg Curl
+462lbs 10/3 - Leg Press
+100lbs 12/3 - Leg Extension
+170lbs 12/4 - Rope Crunches
+Body Weight 6/4 - Captain Chair Leg Raises
+Cardio 60 Minute (Elliptical)
+[205] - 05/07/25 💪🏼📕🤢 - CHEST BACK
+135lbs 8/5 - Barbell Incline Bench Press
+120lbs 10/4 - High to Low Cable Chest Flys
+140lbs 6-8/4 - Incline Machine Press
+200lbs 12/4 - Close Grip Lat Pulldown
+200lbs 15/4 - Close Grip Cable Row
+200lbs 12/2 - Sam Sulek Back Finisher
+[206] - 06/07/25 💪🏼📕🫀- SHOULDER ARM
+90lbs 12/4 - Smith Machine Shoulder Press
+90lbs 10/4 - Smith Machine Jm Press
+100lbs 10/4 - Bicep Exercise
+100lbs 2/4 - Barbell Curl
+150lbs 10/4 - Triceps Pushdown
+SSET 100lbs 12/4 - Rear Deltoid
+SSET 40lbs 10/4 - Dumbbell Hammer Curl
+SSET 30lbs 12/4 - Dumbbell Lateral Raise
+SSET 80lbs 12/4 - Face Pull
+Cardio 60 Minute (Elliptical)
+[207] - 07/07/25 🎓💪🏼🤤 - FREESTYLE
+FREESTYLE DAY FREESTYLE DAY
+[208] - 08/07/25 🎓🤤
+REST REST REST REST REST REST REST
+[209] - 09/07/25 💪🏼📕🫀- PUSH
+90lbs 12/3 - Smith Machine Bench Press
+120lbs 10/3 - High to Low Cable Chest Flys
+55lbs 6-8/3 - Dumbbell Incline Chest Press
+150lbs 8/3 - Triceps Pushdown
+150lbs 8/3 - Overhead Cable Triceps Extension
+140lbs 6/3 - Pectoral
+110lbs 8/3 - Military Press
+200lbs [FULL STACK] 12/3 - Chest Press
+30lbs 12/3 Dumbbell Lateral Raise
+Cardio 60 Minute (Elliptical)
+[210] - 10/07/25 💪🏼📕🫀- PULL
+170lbs 6/3 - Wide Grip Lat Pulldown
+200lbs 12/4 - Wide Grip Cable Row
+150lbs 8/3 - Single Arm Cable Row
+200lbs 12/3 - Sam Sulek Back Finisher
+140lbs 5/3 - Cable Biceps Curl
+50lbs 12/3 - EZ Barbell Curl
+100lbs 8/3 - Rope Hammer Curl
+100lbs 12/4 - Face Pull
+100lbs 12/4 - Rear Deltoid
+Cardio 60 Minute (Elliptical)
+[211] - 11/07/25 💪🏼📕🫀- LEG
+270lbs 10/3 - Reverse Hack Squat
+540lbs 8/3 - Leg Press
+50lbs 8/3 - Dumbbell RDL
+120lbs 12/3 - Leg Extension
+70lbs 12/3 - Prone Leg Curl
+110lbs 15/4 - Abdominal Crunch
+Body Weight 6/4 - Captain Chair Leg Raises
+Cardio 60 Minute (Elliptical)
+[212] - 12/07/25 💪🏼📕🫀- CHEST BACK
+120lbs 12/3 - Smith Machine Bench Press
+120lbs 10/3 - High to Low Cable Chest Flys
+140lbs 6-8/3 - Incline Machine Press
+150lbs 8/3 - Close Grip Lat Pulldown
+150lbs 8/3 - Single Arm Cable Row
+200lbs 12/5 - Close Grip Cable Row
+Cardio 60 Minute (Elliptical)
+[213] - 13/07/25 💪🏼📕🫀- SHOULDER ARM
+90lbs 10/4 - Smith Machine Shoulder Press
+90lbs 10/4 - Smith Machine Jm Press
+150lbs 8/4 - Triceps Pushdown
+70lbs 8/4 - Ez Barbell Curl
+100lbs 10/4 - Bicep Exercise
+120lbs 8/4 - Rear Deltoid
+45lbs 6/3 - Dumbbell Hammer Curl
+20lbs 12/6 - Cable Lateral Raise
+100lbs 12/4 - Face Pull
+Cardio 60 Minute (Elliptical)
+[214] - 14/07/25 🎓💪🏼🤤 - FREESTYLE
+FREESTYLE DAY FREESTYLE DAY
+[215] - 15/07/25 🎓🤤
+REST REST REST REST REST REST REST
+[216] - 16/07/25 💪🏼📕🫀- PUSH
+150lbs 4/3 - Smith Machine Bench Press
+140lbs 4/3 - High to Low Cable Chest Flys
+70lbs 4/3 - Dumbbell Incline Chest Press
+70lbs Failure/3 - Triceps Pushdown
+70lbs Failure/3 - Reverse Grip Triceps Pushdown
+50lbs 8/3 - Skull Crushes
+125lbs 6/3 - Military Press
+200lbs [FULL STACK] 12/3 - Chest Press
+160lbs 6/3 - Pectoral
+Cardio 60 Minute (Elliptical)
+[217] - 17/07/25 💪🏼📕🫀- PULL
+170lbs 6/3 - Neutral Grip Lat Pulldown
+200lbs 12/4 - Wide Grip Cable Row
+170lbs 6/3 - Single Arm Cable Row
+200lbs 12/3 - Sam Sulek Back Finisher
+60lbs 10/3 - Single Arm Cable Biceps Curl
+120lbs 6/3 - Rope Hammer Curl
+120lbs 8/3 - Face Pull
+120lbs 8/3 - Rear Deltoid
+Cardio 60 Minute (Elliptical)
+[218] - 18/07/25 💪🏼📕🫀- LEG
+140lbs 10/3 - Smith Machine Squat
+450lbs 12/3 - Leg Press
+5usa 12/4 - Adductor
+80lbs 12/3 - Prone Leg Curl
+250lbs 8/4 - Abdominal Crunch
+135lbs 10/3 - RDL
+Failure/1 - Leg Extension
+Cardio 60 Minute (Elliptical)
+[219] - 19/07/25 💪🏼📕🫀- CHEST BACK
+140lbs 6/3 - Smith Machine Incline Bench Press
+180lbs 4/3 - Incline Machine Press
+Failure/2 - High to Low Cable Chest Flys
+185lbs 4/2 - Barbell Row
+255lbs 12/3 - Close Grip Cable Row
+200lbs 10/3 - Close Grip Lat Pulldown
+Cardio 50 Minute (Elliptical)
+[220] - 20/07/25 💪🏼📕🫀- SHOULDER ARM
+110lbs 6/3 - Smith Machine Shoulder Press
+100lbs 10/3 - Smith Machine Jm Press
+150lbs 8/4 - Triceps Pushdown
+SSET 60lbs 10/3 - Single Arm Cable Biceps Curl
+SSET 45lbs 8/3 - Dumbbell Hammer Curl
+100lbs 12/3 - Face Pull
+100lbs 12/3 - Rear Deltoid
+40lbs 8/4 - Cable Lateral Raise
+Cardio 30 Minute (Cycling)
+[221] - 21/07/25 🎓💪🏼📕🤤 - FREESTYLE
+FREESTYLE DAY FREESTYLE DAY
+[222] - 22/07/25 🤤
+REST REST REST REST REST REST REST
+[223] - 23/07/25 💪🏼📕🫀- PUSH
+140lbs 6/4 - Smith Machine Bench Press
+120lbs 8-10/4 - High to Low Cable Chest Flys
+55lbs 8/4 - Dumbbell Incline Chest Press
+150lbs 8/4 - Triceps Pushdown
+50lbs Failure/4 - Reverse Grip Triceps Pushdown
+160lbs 6-8/4 - Pectoral
+125lbs 6-8/4 - Military Press
+200lbs [FULL STACK] 12/2 - Chest Press
+20lbs Failure/6 - Cable Lateral Raise
+Cardio 60 Minute (Elliptical)
+[224] - 24/07/25 💪🏼📕🫀- PULL
+170lbs 6/4 - Wide Grip Lat Pulldown
+120lbs 8/4 - Rear Deltoid
+120lbs 8/4 - Face Pull
+120lbs 6/4 - Rope Hammer Curl
+170lbs 6/2 - Single Arm Cable Row
+170lbs 12/4 - Wide Grip Cable Row
+170lbs Failure/2 - Sam Sulek Back Finisher
+60lbs 10/4 - Single Arm Cable Biceps Curl
+100lbs 6/4 - Bicep Exercise
+Cardio 30 Minute (Elliptical)
+Cardio 30 Minute (Cycling)
+[225] - 25/07/25 💪🏼📕🫀! - LEG
+150lbs 8/4 - Smith Machine Squat
+660lbs 6/2 - Leg Press
+6usa 12/4 - Adductor
+225lbs 6/2 - RDL
+100lbs 10/3 - Prone Leg Curl
+50lbs Failure/2 - Single Leg Extension
+200lbs 12/3 - Abdominal Crunch
+Cardio 60 Minute (Elliptical)
+[226] - 26/07/25 💪🏼📕🫀- CHEST BACK
+180lbs 4/4 - Incline Machine Press
+135lbs 8/4 - Barbell Incline Bench Press
+120lbs 10/4 - High to Low Cable Chest Flys
+135lbs 10/4 - Barbell Row
+200lbs 15/4 - Close Grip Lat Pulldown
+255lbs 12/4 - Close Grip Cable Row
+Cardio 60 Minute (Elliptical)
+[227] - 27/07/25 💪🏼📕🫀- SHOULDER ARM
+120lbs 8/4 - Smith Machine Shoulder Press
+120lbs 8-6/4 - Smith Machine Jm Press
+170lbs 6/4 - Triceps Pushdown
+40lbs 10/4 - Bayesian Curl
+SSET 25lbs 12/4 - Single Arm DB Biceps Curl
+SSET 45lbs 8/4 - Dumbbell Hammer Curl
+20lbs 12/4 - Dumbbell Lateral Raise
+30lbs Failure/6 - Cable Lateral Raise
+100lbs 12/4 - Face Pull
+100lbs 12/4 - Rear Deltoid
+Cardio 50 Minute (Elliptical)
+[228] - 28/07/25 💪🏼📕🫀- FREESTYLE
+FREESTYLE DAY FREESTYLE DAY
+Cardio 60 Minute (Elliptical)
+[229] - 29/07/25 💪🏼📕🫀- PUSH
+140lbs 8-6/4 - Smith Machine Bench Press
+180lbs 4/4 - Incline Machine Press
+120lbs 6-8/4 - High to Low Cable Chest Flys
+170lbs 6/4 - Triceps Pushdown
+100lbs 12/4 - Reverse Grip Triceps Pushdown
+160lbs 6-8/4 - Pectoral
+125lbs 6-8/4 - Military Press
+200lbs [FULL STACK] 12/2 - Chest Press
+20lbs 15/4 - Dumbbell Lateral Raise
+Cardio 60 Minute (Elliptical)
+[230] - 30/07/25 💪🏼📕🫀- PULL
+130lbs 10/4 - Wide Grip Lat Pulldown
+40lbs 10/4 - Bayesian Curl
+80lbs 12/4 - Rope Hammer Curl
+60lbs 10/4 - Single Arm Cable Biceps Curl
+150lbs 8/2 - Single Arm Cable Row
+245lbs 10/4 - Wide Grip Cable Row
+200lbs Failure/2 - Sam Sulek Back Finisher
+20lbs 12-15/6 - Single Arm Cable Reverse Fly
+Cardio 30 Minute (Elliptical)
+[231] - 31/07/25 ✍️💪🏼🍖 - FREESTYLE
+FREESTYLE DAY FREESTYLE DAY
+[232] - 01/08/25 💪🏼📕🫀- LEG
+540lbs 3/1 - Reverse Hack Squat
+450lbs 12/4 - Leg Press
+6usa 12/4 - Adductor
+135lbs 12/2 - RDL
+100lbs 10/3 - Prone Leg Curl
+150lbs 12/4 - Leg Extension
+200lbs 12-10/3 - Abdominal Crunch
+Cardio 30 Minute (Elliptical)
+[233] - 02/08/25 💪🏼📕🫀- SHOULDER ARM
+120lbs 8-6/4 - Smith Machine Shoulder Press
+170lbs 6/4 - Triceps Pushdown
+150lbs 8/4 - Overhead Cable Triceps Extension
+50lbs 10/4 - Bayesian Curl
+50lbs 10/4 - Single Arm Cable Biceps Curl
+45lbs 8/4 - Dumbbell Hammer Curl
+20lbs 12/4 - Dumbbell Lateral Raise
+30lbs Failure/6 - Cable Lateral Raise
+20lbs 12-15/6 - Single Arm Cable Reverse Fly
+100lbs 12/2 - Face Pull
+100lbs 12/2 - Rear Deltoid
+Cardio 30 Minute (Elliptical)
+[234] - 03/08/25 💪🏼📕🫀- CHEST BACK
+180lbs 6/4 - Incline Machine Press
+60lbs 8-6/4 - Dumbbell Incline Chest Press
+100lbs 12/4 - High to Low Cable Chest Flys
+135lbs 12/4 - Barbell Row
+200lbs 12/4 - Close Grip Lat Pulldown
+200lbs 12/4 - Close Grip Cable Row
+200lbs 12/4 - Medium Grip Cable Row
+80lbs 15/4 - Sam Sulek Face Pull
+Cardio 30 Minute (Elliptical)
+[235] - 04/08/25 🤤
+REST REST REST REST REST REST REST
+[236] - 05/08/25 💪🏼📕🫀- PUSH
+150lbs 10-8/4 - Pectoral
+180lbs 6-4/4 - Incline Machine Press
+100lbs 12/4 - High to Low Cable Chest Flys
+170lbs 6/4 - Triceps Pushdown
+S 150lbs 8/4 - Overhead Cable Triceps Extension
+S 70lbs 12/4 - Reverse Grip Triceps Pushdown
+140lbs 8-6/4 - Smith Machine Bench Press
+125lbs 6-8/4 - Military Press
+20lbs 12/4 - Dumbbell Lateral Raise
+30lbs Failure/6 - Cable Lateral Raise
+Cardio 30 Minute (Elliptical)
+[237] - 06/08/25 💪🏼📕🫀- PULL
+150lbs 10/4 - Wide Grip Lat Pulldown
+255lbs 10/4 - Wide Grip Cable Row
+150lbs 8/4 - Single Arm Cable Row
+200lbs Failure/2 - Sam Sulek Back Finisher
+20lbs 15/6 - Single Arm Cable Reverse Fly
+100lbs 12/2 - Rear Deltoid
+40lbs 8/4 - Dumbbell Biceps Curl
+35lbs 10/4 - Dumbbell Hammer Curl
+80lbs 12/4 - Bicep Exercise
+Cardio 30 Minute (Elliptical)
+[238] - 07/08/25 💪🏼📕🫀- LEG
+360lbs 10/4 - Reverse Hack Squat
+540lbs 8/4 - Leg Press
+225lbs 6/2 - RDL
+7usa 12/4 - Adductor
+100lbs 10/2 - Prone Leg Curl
+70lbs 15/2 - Single Leg Extension
+90lbs Failure/4 - Abdominal Crunch
+Cardio 30 Minute (Elliptical)
+[239] - 08/08/25 💪🏼📕🫀- CHEST BACK
+100lbs 12/4 - High to Low Cable Chest Flys
+135lbs 8/4 - Barbell Bench Press
+180lbs 6-4/4 - Incline Machine Press
+130lbs 12/4 - Close Grip Lat Pulldown
+165lbs 8/4 - Barbell Row
+200lbs 12/4 - Close Grip Cable Row
+200lbs Failure/2 - Sam Sulek Back Finisher
+Cardio 30 Minute (Elliptical)
+[240] - 09/08/25 💪🏼📕🫀- SHOULDER ARM
+170lbs 6/4 - Triceps Pushdown
+90lbs 12/4 - Smith Machine Shoulder Press
+90lbs 12/4 - Smith Machine Jm Press
+200lbs 12/4 - Sam Sulek Arm Pulldown
+40lbs 12/4 - Bayesian Curl
+80lbs 12/4 - Rope Hammer Curl
+25lbs 12/4 - Single Arm DB Lateral Raise
+100lbs 12/4 - Sam Sulek Face Pull
+30lbs 15/4 - Cable Lateral Raise
+30lbs 15/4 - Single Arm Cable Reverse Fly
+Cardio 30 Minute (Elliptical)
+[241] - 10/08/25 💪🏼📕🫀- FREESTYLE
+FREESTYLE DAY FREESTYLE DAY
+Cardio 30 Minute (Elliptical)
+[242] - 11/08/25 🤤
+REST REST REST REST REST REST REST
+[243] - 12/08/25 💪🏼📕🫀- PUSH
+135lbs 10/4 - Barbell Bench Press
+120lbs 12/4 - High to Low Cable Chest Flys
+200lbs [FULL STACK] 12/2 - Chest Press
+90lbs 12/4 - Incline Machine Press
+120lbs 8/4 - D-Grip Triceps Pushdown
+120lbs 10/4 - Overhead Cable Triceps Extension
+80lbs 12/4 - Reverse Grip Triceps Pushdown
+50lbs 12/4 - Rope Cable Front Raise
+20lbs 12/4 - Dumbbell Lateral Raise
+30lbs 15/4 - Cable Lateral Raise
+Cardio 30 Minute (Elliptical)
+[244] - 13/08/25 💪🏼📕🫀- PULL
+150lbs 10/4 - Wide Grip Lat Pulldown
+255lbs 10/4 - Wide Grip Cable Row
+150lbs 8/3 - Single Arm Cable Row
+200lbs 12/3 - Sam Sulek Back Finisher
+40lbs 8/4 - Dumbbell Biceps Curl
+25lbs 12/4 - Dumbbell Hammer Curl
+50lbs 8/4 - Bayesian Curl
+100lbs 12/6 - Sam Sulek Face Pull
+30lbs 12/4 - Single Arm Cable Reverse Fly
+Cardio 30 Minute (Elliptical)
+[245] - 14/08/25 💪🏼📕🫀- LEG
+135lbs 12/3 - RDL
+50lbs 12/4 - Prone Leg Curl
+7usa 12/4 - Adductor
+90lbs 12/2 - Hack Squat
+Body Weight 12/2 - Sissy Hack Squat
+380lbs 20/2 - Leg Press
+70lbs 8/3 - Cable Front Raise
+40lbs 12/3 - Cable Lateral Raise
+150lbs 12/2 - Leg Extension
+140lbs 15/4 - Abdominal Crunch
+Cardio 30 Minute (Elliptical)
+[246] - 15/08/25 💪🏼📕🫀- CHEST BACK
+135lbs 10/4 - Barbell Bench Press
+160lbs 8/3 - High to Low Cable Chest Flys
+180lbs 6/4 - Incline Machine Press
+100lbs 12/4 - T-bar Row
+200lbs 12/4 - Close Grip Lat Pulldown
+200lbs 12/4 - Close Grip Cable Row
+200lbs 12/2 - Sam Sulek Back Finisher
+Cardio 30 Minute (Elliptical)
+[247] - 16/08/25 💪🏼📕🫀- SHOULDER ARM
+200lbs 12/4 - Sam Sulek Arm Pulldown
+60lbs 10/4 - Bayesian Curl
+120lbs 8/4 - D-Grip Triceps Pushdown
+90lbs 12/4 - Smith Machine Shoulder Press
+90lbs 12/4 - Smith Machine Jm Press
+20lbs 12/4 - Dumbbell Lateral Raise
+50lbs 12/4 - Rope Cable Front Raise
+80lbs 12/4 - Face Pull
+30lbs 15/4 - Cable Lateral Raise
+30lbs 15/4 - Single Arm Cable Reverse Fly
+Cardio 30 Minute (Elliptical)
+[248] - 17/08/25 💪🏼📕🫀- FREESTYLE
+FREESTYLE DAY FREESTYLE DAY
+Cardio 30 Minute (Elliptical)
+[249] - 18/08/25 🤤
+REST REST REST REST REST REST REST
+[250] - 19/08/25 💪🏼📕🫀- PUSH
+140lbs 6/4 - Smith Machine Bench Press
+120lbs 12/4 - High to Low Cable Chest Flys
+150lbs 6/4 - Pectoral
+180lbs 6/4 - Incline Machine Press
+170lbs 8/4 - Triceps Pushdown
+120lbs 12/4 - Overhead Cable Triceps Extension
+50lbs 12/4 - Rope Cable Front Raise
+30lbs 15/4 - Cable Lateral Raise
+Cardio 30 Minute (Elliptical)
+[251] - 20/08/25 💪🏼📕🫀- PULL
+150lbs 10/4 - Wide Grip Lat Pulldown
+200lbs 12/4 - Wide Grip Cable Row
+130lbs 12/4 - Single Arm Cable Row
+200lbs 12/2 - Sam Sulek Back Finisher
+120lbs 12/4 - Sam Sulek Face Pull
+30lbs 12/4 - Single Arm Cable Reverse Fly
+50lbs 12/4 - Bayesian Curl
+30lbs 12/4 - Dumbbell Biceps Curl
+30lbs 12/4 - Dumbbell Hammer Curl
+Cardio 30 Minute (Elliptical)
+[252] - 21/08/25 💪🏼📕🫀- LEG
+360lbs 10/4 - Reverse Hack Squat
+610lbs 6/2 - Leg Press
+135lbs 8/2 - RDL
+7usa 12/4 - Adductor
+100lbs 8/2 - Prone Leg Curl
+150lbs 12/4 - Leg Extension
+140lbs 12/4 - Abdominal Crunch
+70lbs 8/3 - Rope Cable Front Raise
+40lbs 12/3 - Cable Lateral Raise
+Cardio 30 Minute (Elliptical)
+[253] - 22/08/25 💪🏼📕🫀- CHEST BACK
+130lbs 12/4 - Close Grip Lat Pulldown
+90lbs 15/4 - Smith Machine Bench Press
+120lbs 15/4 - High to Low Cable Chest Flys
+200lbs 12/4 - Close Grip Cable Row
+200lbs 12/4 - Sam Sulek Back Finisher
+140lbs 12/4 - Incline Machine Press
+Cardio 30 Minute (Elliptical)
+[254] - 23/08/25 💪🏼📕🫀- SHOULDER ARM
+90lbs 12/4 - Smith Machine Shoulder Press
+90lbs 12/4 - Smith Machine Incline Bench Press
+60lbs 8/4 - Bayesian Curl
+100lbs 12/4 - Rope Triceps Pushdown
+50lbs 12/4 - Rope Cable Front Raise
+120lbs 12/4 - Sam Sulek Face Pull
+100lbs 12/4 - Sam Sulek Biceps Curl
+40lbs 12/4  - Cable Lateral Raise
+Cardio 30 Minute (Elliptical)
+[255] - 24/08/25 🤤
+REST REST REST REST REST REST REST
+[256] - 25/08/25 📚💪🏼🕷️- PUSH [A]
+60kg 10/4 - Smith Machine Incline Bench Press
+58.5kg 10/4 - Machine Chest Press
+31.5kg 10/4 - High to Low Cable Chest Flys
+49.5kg 12/4 - Machine Lateral Raise
+28.75kg 12/4 - Triceps Pushdown
+28.75kg 12/4 - Overhead Triceps Extension
+11.25kg 12/4 - Rope Cable Front Raise
+[257] - 26/08/25 📚💪🏼🕷️🫀- PULL [A]
+48.75kg 12/4 - Wide Grip Lat Pulldown
+48.75kg 12/4 - Wide Grip Cable Row
+48.75kg 12/4 - Sam Sulek Back Finisher
+26.25kg 12/4 - Face Pull
+6.25kg 12/4 - Single Arm Cable Reverse Fly
+16kg 12/4 - Dumbbell Biceps Curl
+16kg 12/4 - Dumbbell Hammer Curl
+30kg 6/2 - Barbell Curl
+Cardio 15 Minute (Elliptical)
+[258] - 27/08/25 📚💪🏼🕷️- PUSH [B]
+36.0kg 8/4 - High to Low Cable Chest Flys
+60kg 8/4 - Barbell Incline Bench Press
+67.5kg 6/4 - Machine Fly
+76.5kg 6/4 - Machine Chest Press
+58.5kg 10/4 - Machine Lateral Raise
+40.5kg 10/4 - Machine Shoulder Press
+40.5kg 10/4 - Triceps Extension
+33.75kg 8/4 - Triceps Pushdown
+[259] - 28/08/25 📚💪🏼🕷️🫀- PULL [B]
+49.5kg 8/4 - Arm Curl
+60kg 12/4 - Barbell Row
+26.25kg 12/4 - Face Pull
+48.75kg 12/4 - Close Grip Lat Pulldown
+48.75kg 12/4 - Close Grip Cable Row
+18kg 6/4 - Dumbbell Biceps Curl
+18kg 10/4 - Dumbbell Hammer Curl
+Cardio 20 Minute (Elliptical)
+[260] - 29/08/25 📚💪🏼📕🫀- CHEST
+Barbell Incline Bench Press
+High to Low Cable Chest Flys
+Chest Fly
+Cardio 30 Minute (Elliptical)
+[261] - 30/08/25 🫀🤤
+REST REST REST REST REST REST REST
+Cardio 60 Minute (Cycling)
+[262] - 31/08/25 🫀🤤
+REST REST REST REST REST REST REST
+Cardio 30 Minute (Cycling)
+[263] - 01/09/25 📚💪🏼😎🕷️- PUSH [A]
+60kg 12/4 - Barbell Incline Bench Press
+76.5kg 10/4 - Machine Chest Press
+40.5kg 10/4 - Triceps Extension
+36.0kg 8/4 - High to Low Cable Chest Flys
+40.5kg 12/4 - Machine Shoulder Press
+33.75kg 8/4 - Triceps Pushdown
+6.25kg 12/4 - Single Arm Cable Lateral Raise
+49.5kg 12/4 - Abdominal
+[264] - 02/09/25 📚💪🏼😎🕷️- PULL [A]
+93.25kg 12/4 - Wide Grip Lat Pulldown
+93.25kg 12/4 - Underhand Lat Pulldown
+33.75kg 10/4 - Face Pull
+85.5kg 10/4 - Machine Row
+49.5kg 10/4 - Arm Curl
+20kg 10/4 - Dumbbell Hammer Curl
+16kg 10/2 - Dumbbell Biceps Curl
+[265] - 03/09/25 📚💪🏼😎🕷️- PUSH [B]
+75kg 8-6/4 - Barbell Incline Bench Press
+85.5kg 4/4 - Machine Chest Press
+58.5kg 12/4 - Machine Lateral Raise
+36.0kg 8/4 - High to Low Cable Chest Flys
+40.5kg 10/4 - Triceps Extension
+38.75kg 6/4 - Triceps Pushdown
+[266] - 04/09/25 📚💪🏼😎🕷️- PULL [B]
+100kg 4/3 - Barbell Row
+93.25kg 12/4 - Close Grip Lat Pulldown
+73.25kg 12/4 - Close Grip Cable Row
+28.76kg 12/4 - Face Pull
+20kg 10/4 - Dumbbell Hammer Curl
+49.5kg 10/4 - Arm Curl
+[267] - 05/09/25 📚🤤
+REST REST REST REST REST REST REST
+[268] - 06/09/25 🫀
+Cardio 60 Minute (Cycling)
+[269] - 07/09/25 🤤
+REST REST REST REST REST REST REST
+[270] - 08/09/25 📚💪🏼😎🕷️- PUSH
+70kg 8-10/4 - Barbell Incline Bench Press
+76.5kg 12/4 - Machine Chest Press
+58.5kg 12/4 - Machine Lateral Raise
+41.25kg 8/4 - Triceps Pushdown
+36.0kg 8/4 - High to Low Cable Chest Flys
+49.5kg 8/4 - Machine Shoulder Press
+49.5kg 10/4 - Triceps Extension
+[271] - 09/09/25 📚💪🏼😎🕷️🫀🍖- PULL [A]
+-52.5kg 4-6/4 - Pull Up [ Warm up ]
+23.75kg 12/4 - Rope Hammer Curls
+95.5kg 12/4 - Wide Grip Lat Pulldown
+95.5kg 12/4 - Underhand Lat Pulldown
+55.5kg 12/4 - Wide Grip Cable Row
+33.75kg 10/4 - Face Pull
+Cardio 60 Minute (Cycling)
+[272] - 10/09/25 📚💪🏼😎🕷️- DL SHOULDER 
+170kg 1RM - Deadlift Deadlift Deadlift
+40kg 12/10 - Smith Machine Shoulder Press
+58.5kg 12/10 - Machine Lateral Raise
+49.5kg 12/4 - Arm Curl [ADD]
+67.5kg 8/4 - Abdominal
+[273] - 11/09/25 📚💪🏼😎🕷️- CHEST TRICEPS
+49.5kg 12/4 - Machine Fly
+49.5kg 12/4 - Triceps Extension
+36.0kg 12/4 - High to Low Cable Chest Flys
+60kg 12/4 - Barbell Incline Bench Press
+28.75kg 10/4 - Rope Triceps Pushdown
+85.5kg 6/2 - Machine Chest Press
+[274] - 12/09/25 📚🤤
+REST REST REST REST REST REST REST
+[275] - 13/09/25 🫀
+Cardio 60 Minute (Cycling)
+[276] - 14/09/25 🫀
+Cardio 60 Minute (Cycling)
+[277] - 15/09/25 📚💪🏼🕷️🫀- PUSH
+65kg 10/4 - Smith Machine Incline Bench Press
+36.0kg 8/4 - High to Low Cable Chest Flys
+67.5kg 12/4 - Machine Chest Press
+49.5kg 10/4 - Triceps Extension
+45kg 12/4 - Rope Triceps Pushdown
+58.5kg 12/4 - Machine Lateral Raise
+Cardio 20 Minute (Elliptical)
+[278] - 16/09/25 📚💪🏼😎🕷️🫀- PULL [A]
+115.5kg 10/4 - Wide Grip Lat Pulldown
+115.5kg 10/4 - Underhand Lat Pulldown
+85.5kg 10/4 - Machine Row
+49.5kg 12/4 - Arm Curl
+31.5kg 12/4 - Machine Rear Delt
+23.75kg 12/4 - Rope Hammer Curls
+Cardio 20 Minute (Elliptical)
+[279] - 17/09/25 📚💪🏼😎🕷️- DL SHOULDER 
+140kg 3Reps - Deadlift Deadlift Deadlift
+50kg 8/4 - Smith Machine Shoulder Press
+67.5kg 8/4 - Machine Single Arm Lateral Raise
+10kg 12/4 - Dumbbell Lateral Raise
+18kg 12/4 - Rope Cable Front Raise
+Cardio 30 Minute (Cycling)
+[280] - 18/09/25 📚💪🏼🕷️- CHEST
+31.5kg 10/4 - Cable Chest Flys
+36.0kg 10/4 - High to Low Cable Chest Flys
+58.5kg 10/4 - Single Arm Machine Fly
+60kg 8/4 - Barbell Incline Bench Press
+[281] - 19/09/25 📚🤤
+REST REST REST REST REST REST REST
+[282] - 20/09/25 🤤
+REST REST REST REST REST REST REST
+[283] - 21/09/25 🤤
+REST REST REST REST REST REST REST
+[284] - 22/09/25 📚💪🏼😎🫀- UPPER BODY
+75kg 6/4 - Barbell Incline Bench Press
+60kg 10/2 - Barbell Bench Press
+60kg 10/2 - Smith Machine Bench Press
+50kg 10/4 - Smith Machine Shoulder Press
+70kg 8/4 - Barbell Row
+49.5kg 10/4 - Arm Curl
+48.75kg 20/4 - Close Grip Lat Pulldown
+26.25 10/4 - Rope Triceps Pushdown
+Cardio 60 Minute (Cycling)
+[285] - 23/09/25 🤤
+REST REST REST REST REST REST REST
+[286] - 24/09/25 📚💪🏼😎- PUSH
+36.0kg 12/4 - High to Low Cable Chest Flys
+58.5kg 12/4 - Machine Lateral Raise
+60kg 10/4 - Barbell Incline Bench Press
+49.5kg 8/4 - Machine Shoulder Press
+41.25kg 8/4 - Triceps Pushdown
+76.5kg 10/4 - Machine Chest Press
+[287] - 25/09/25 📚💪🏼😎- PULL
+122.75kg 12/4 - Wide Grip Lat Pulldown
+122.75kg 10/4 - Underhand Lat Pulldown
+58.5kg 12/4 - Single Arm Machine Row
+58.5kg 8/4 - Arm Curl
+28.75kg 10/4 - Face Pull
+20kg 8/4 - Dumbbell Hammer Curl
+[288] - 26/09/25 📚💪🏼😎🍖- PUSH
+40kg 8/4 - Barbell Shoulder Press
+75kg 8/4 - Barbell Incline Bench Press
+10kg 12/4 - Dumbbell Lateral Raise
+49.5kg 10/4 - Triceps Extension
+40.5kg 8/4 - High to Low Cable Chest Flys
+13.5kg 12/4 - Single Arm Cable Lateral Raise
+[289] - 27/09/25 🤤
+REST REST REST REST REST REST REST
+[290] - 28/09/25 🤤
+REST REST REST REST REST REST REST
+[291] - 29/09/25 📚💪🏼😎- UPPER BODY
+75kg 8/4 - Barbell Incline Bench Press
+60kg 12/4 - Smith Machine Bench Press
+31.25 10/4 - Rope Triceps Pushdown
+48.75kg 12/4 - Rope Lat Pulldown
+33.75kg 12/4 - Face Pull
+33.75kg 8/4 - Rope Hammer Curls
+10kg 12/4 - Dumbbell Lateral Raise
+[292] - 30/09/25 🤤
+REST REST REST REST REST REST REST
+[293] - 01/10/25 📚💪🏼😎🫀- PUSH
+80kg 8/3 - Barbell Bench Press
+70kg 8/3 - Barbell Incline Bench Press
+12kg 8/4 - Dumbbell Lateral Raise
+40kg 12/4 - Smith Machine Shoulder Press
+49.5kg 10/4 - Triceps Extension
+36.0kg 12/3 - High to Low Cable Chest Flys
+Cardio 20 Minute (Cycling)
+[294] - 02/10/25 📚💪🏼😎🫀- PULL
+97.75kg 12/4 - Wide Grip Lat Pulldown
+97.75kg 12/4 - Close Grip Lat Pulldown
+97.75kg 12/4 - Close Grip Cable Row
+28.75kg 12/4 - Face Pull
+33.75kg 8/2 - Rope Hammer Curls
+58.5kg 6/2 - Arm Curl
+Cardio 40 Minute (Cycling)
+[295] - 03/10/25 😷🤒🤤
+REST REST REST REST REST REST REST
+[296] - 04/10/25 😷🤒🤤
+REST REST REST REST REST REST REST
+[297] - 05/10/25 😷🤒🤤
+REST REST REST REST REST REST REST
+[298] - 06/10/25 😷🤒🤤
+REST REST REST REST REST REST REST
+[299] - 07/10/25 😷🤒🤤
+REST REST REST REST REST REST REST
+[300] - 08/10/25 📚💪🏼😎🫀- PUSH
+40.5kg 8/3 - High to Low Cable Chest Flys
+70kg 6/3 - Barbell Incline Bench Press
+31.25kg 10/4 - Rope Triceps Pushdown
+67.5kg 8/3 - Single Arm Machine Fly
+35kg 12/4 - Barbell Shoulder Press
+10kg 12/4 - Single Arm Dumbbell Lateral Raise
+Cardio 20 Minute (Cycling)
+[301] - 09/10/25 📚💪🏼😎🫀- PUSH
+80kg 6/3 - Barbell Incline Bench Press
+70kg 8/3 - Barbell Bench Press
+40kg 10/4 - Barbell Shoulder Press
+12kg 10/4 - Single Arm Dumbbell Lateral Raise
+49.5kg 6/3 - Triceps Extension
+Cardio 20 Minute (Cycling)
+[302] - 10/10/25 📚💪🏼😎🫀- PULL
+97.75kg 12/3 - Wide Grip Lat Pulldown
+97.75kg 12/2 - Underhand Lat Pulldown
+97.75kg 12/2 - Close Grip Lat Pulldown
+97.75kg 12/3 - Close Grip Cable Row
+12kg 8/6 - Dumbbell Curl
+49.5kg 8/3 - Arm Curl
+28.75kg 12/4 - Face Pull
+6.25kg 12/4 - Single Arm Cable Reverse Fly
+Freestyle - Hammer Curls
+Cardio 20 Minute (Elliptical)
+[303] - 11/10/25 🤤
+REST REST REST REST REST REST REST
+[304] - 12/10/25 🤤
+REST REST REST REST REST REST REST
+[305] - 13/10/25 🤤
+REST REST REST REST REST REST REST
+[306] - 14/10/25 🤤
+REST REST REST REST REST REST REST
+[307] - 15/10/25 📚💪🏼😎🫀- PUSH
+80kg 8/3 - Barbell Incline Bench Press
+70kg 8/3 - Barbell Bench Press
+40kg 12/3 - Barbell Shoulder Press
+14kg 12/3 - Single Arm Dumbbell Lateral Raise
+54kg 12/3 - Triceps Pushdown
+Cardio 30 Minute (Cycling)
+[308] - 16/10/25 📚💪🏼😎🫀- PULL
+40kg 10/3 - T-bar Row
+97.75kg 12/3 - Wide Grip Lat Pulldown
+97.75kg 12/3 - Underhand Lat Pulldown
+28.75kg 12/3 - Face Pull
+8.75kg 10/3 - Single Arm Cable Reverse Fly
+21.25kg 8/2 - Rope Hammer Curls
+14kg 8/4 - Dumbbell Curl
+Cardio 20 Minute (Cycling)
+[309] - 17/10/25 📚💪🏼😎🫀- PUSH
+90kg 1RM - Barbell Bench Press
+70kg 8/3 - Barbell Bench Press
+70kg 8/3 - Barbell Incline Bench Press
+28.75kg 12/3 - Triceps Pushdown
+8.75kg 10/7 - Single Arm Cable Lateral Raise 
+40.5kg 10/4 - Machine Shoulder Press
+Cardio 30 Minute (Cycling)
+[310] - 18/10/25 🤤
+REST REST REST REST REST REST REST
+[311] - 19/10/25 🤤
+REST REST REST REST REST REST REST
+[312] - 20/10/25 📚💪🏼😎- UPPER BODY
+75kg 10/4 - Barbell Incline Bench Press
+36.0kg 10/4 - High to Low Cable Chest Flys
+93.25kg 10/4 - Rope Lat Pulldown
+8.75kg 12/4 - Single Arm Cable Lateral Raise
+8.75kg 12/4 - Single Arm Cable Reverse Fly
+31.25kg 8/3 - Rope Hammer Curls
+Freestyle - Triceps Pushdown
+14kg 10/3 - Dumbbell Curl
+40.5kg 10/4 - Machine Shoulder Press
+[313] - 21/10/25 🤤
+REST REST REST REST REST REST REST
+[314] - 22/10/25 📚💪🏼😎🫀- UPPER BODY
+70kg 8/3 - Smith Machine Incline Bench Press
+70kg 10/3 - Barbell Bench Press
+60kg 8/3 - Barbell Row
+93.25kg 10/4 - Rope Lat Pulldown
+18kg 10/3 - Dumbbell Curl
+20kg 12/3 - Dumbbell Hammer Curl
+49.5kg 10/4 - Triceps Extension
+8.75kg 12/3 - Single Arm Cable Lateral Raise
+8.75kg 12/4 - Single Arm Cable Reverse Fly
+58.5kg 6/3 - Machine Shoulder Press
+Cardio 20 Minute (Cycling)
+[315] - 23/10/25 🤤
+REST REST REST REST REST REST REST
+[316] - 24/10/25 🤤
+REST REST REST REST REST REST REST
+[317] - 25/10/25 📚💪🏼😎🫀- UPPER BODY
+70kg 8/3 - Smith Machine Incline Bench Press
+70kg 10/3 - Barbell Bench Press
+93.25kg 12/3 - Wide Grip Lat Pulldown
+85.5kg 8/3 - Single Arm Machine Row
+18kg 10/3 - Dumbbell Curl
+20kg 12/3 - Dumbbell Hammer Curl
+31.25kg 12/3 - Rope Triceps Pushdown
+8.75kg 12/3 - Single Arm Cable Lateral Raise
+49.5kg 12/3 - Machine Shoulder Press
+Cardio 20 Minute (Cycling)
+[318] - 26/10/25 🤤
+REST REST REST REST REST REST REST
+[319] - 27/10/25 📚💪🏼😎🫀- UPPER BODY
+60kg 8/4 - Smith Machine Incline Bench Press
+50kg 8/4 - Smith Machine Shoulder Press
+18kg 10/4 - Dumbbell Curl
+93.25kg 12/3 - Close Grip Lat Pulldown
+93.25kg 12/3 - Close Grip Cable Row
+8.75kg 12/3 - Single Arm Cable Lateral Raise
+8.75kg 12/3 - Single Arm Cable Reverse Fly
+36.25kg 10/3 - Rope Triceps Pushdown
+Cardio 30 Minute (Cycling)
+[320] - 28/10/25 🤤
+REST REST REST REST REST REST REST
+[321] - 29/10/25 📚💪🏼😎🫀- PUSH
+75kg 8/3 - Barbell Bench Press
+40kg 12/4 - Smith Machine Shoulder Press
+10kg 12/4 - Dumbbell Lateral Raise
+38.75kg 10/3 - Triceps Pushdown
+31.5kg 10/3 - Cable Chest Flys
+31.5kg 10/3 - High to Low Cable Chest Flys
+8.50kg 12/4 - Single Arm Cable Lateral Raise
+Cardio 30 Minute (Cycling)
+[322] - 30/10/25 📚💪🏼😎- UPPER BODY
+75kg 8/3 - Barbell Incline Bench Press
+93.25kg 12/3 - Wide Grip Lat Pulldown
+Testing - Machine Lat Pulldown
+85.5kg 12/3 - Machine Row
+18kg 10/3 - Dumbbell Curl
+14kg 12/3 - Incline Dumbbell Hammer Curls
+16kg 8/3 - Single Arm Dumbbell Lateral Raise
+49.5kg 12/3 - Machine Shoulder Press
+40kg 12/3 - Barbell Jm Press
+31.25kg 12/3 - Face Pull
+8.50kg 12/3 - Single Arm Cable Lateral Raise
+[323] - 31/10/25 🤤
+REST REST REST REST REST REST REST
+[324] - 01/11/25 💪🏼😎🚪- ARM SHOULDER
+20kg 12/4 - Left Arm Dumbbell Shrugs
+10kg 12/4 - Left Arm Dumbbell Upright Row
+10kg 15/4 - Dumbbell Curl
+10kg 15/4 - Dumbbell Tricep Kickback
+10kg 12/4 - Dumbbell Lateral Raise
+4kg 12/4 - Dumbbell Front Raise
+[325] - 02/11/25 🤤
+REST REST REST REST REST REST REST
+[326] - 03/11/25 📚💪🏼😎🫀- UPPER BODY
+75kg 8/3 - Barbell Incline Bench Press
+76.5kg 8/3 - Machine Chest Press
+85.5kg 8/3 - Machine Lat Pulldown
+94.5kg 8/3 - Machine Row
+18kg 10/3 - Dumbbell Curl
+14kg 12/3 - Incline Dumbbell Hammer Curls
+12kg 12/3 - Dumbbell Lateral Raise
+38.75kg 10/3 - Triceps Pushdown
+31.25kg 12/3 - Face Pull
+49.5kg 12/3 - Machine Shoulder Press
+Cardio 30 Minute (Cycling)
+[327] - 04/11/25 🤤
+REST REST REST REST REST REST REST
+[328] - 05/11/25 📚💪🏼😎🫀- PUSH
+80kg 8/3 - Barbell Incline Bench Press
+75kg 8/3 - Barbell Bench Press
+58.5kg 10/3 - Machine Shoulder Press
+8.50kg 12/3 - Single Arm Cable Lateral Raise
+36.25kg 8/3 - Rope Triceps Pushdown
+58.5kg 12/2 - Machine Lateral Raise
+58.5kg 8/3 - Single Arm Machine Fly
+30kg 12/3 - Barbell Upright Row
+20kg 12/3 - Left Arm Dumbbell Shrugs
+Cardio 30 Minute (Cycling)
+[329] - 06/11/25 📚💪🏼😎🫀- PULL
+85.5kg 8/3 - Machine Lat Pulldown
+94.5kg 8/3 - Machine Row
+18kg 10/3 - Dumbbell Curl
+16kg 10/3 - Incline Dumbbell Hammer Curls
+30kg 12/3 - Barbell Upright Row
+33.75kg 12/3 - Face Pull
+25kg 12/3 - Left Arm Plate Shrugs
+Cardio 20 Minute (Cycling)
+[330] - 07/11/25 🤤
+REST REST REST REST REST REST REST
+[331] - 08/11/25 💪🏼😎🚪- ARM SHOULDER
+10kg 15/4 - Dumbbell Curl
+10kg 15/4 - Left Arm Dumbbell Upright Row
+20kg 15/4 - Left Arm Dumbbell Shrugs
+10kg 15/4 - Dumbbell Tricep Kickback
+10kg 15/4 - Dumbbell Hammer Curls
+10kg 12/4 - Dumbbell Lateral Raise
+4kg 12/4 - Dumbbell Front Raise
+[332] - 09/11/25 🤤
+REST REST REST REST REST REST REST
+[333] - 10/11/25 📚💪🏼😎- UPPER BODY
+33.75kg 8/3 - Single Arm Lat Pulldown
+48.75kg 12/3 - Wide Grip Lat Pulldown
+80kg 8/3 - Barbell Bench Press
+49.5kg 10/2 - Triceps Extension
+58.5kg 10/3 - Machine Shoulder Press
+31.5kg 12/3 - Machine Rear Delt
+16kg 10/3 - Incline Dumbbell Hammer Curls
+40kg 8/3 - Barbell Upright Row
+25kg 15/3 - Left Arm Plate Shrugs
+85.5kg 8/2 - Single Arm Machine Fly
+[334] - 11/11/25 🤤
+REST REST REST REST REST REST REST
+[335] - 12/11/25 📚💪🏼😎🫀- PUSH
+31.5kg 10/3 - High to Low Cable Chest Flys
+80kg 8/3 - Barbell Incline Bench Press
+31.25kg 12/3 - Rope Triceps Pushdown
+8.50kg 12/3 - Single Arm Cable Lateral Raise
+76.5kg 8/3 - Machine Chest Press
+30kg 12/3 - Barbell Upright Row
+58.5kg 10/2 - Machine Shoulder Press
+25kg 15/2 - Left Arm Plate Shrugs
+Cardio 20 Minute (Cycling)
+[336] - 13/11/25 📚💪🏼😎- PULL
+85.5kg 8/3 - Machine Lat Pulldown
+85.5kg 8/3 - Machine Single Arm Lat Pulldown
+94.5kg 8/3 - Machine Row
+31.5kg 12/3 - Machine Rear Delt
+8.50kg 12/4 - Single Arm Cable Reverse Fly
+18kg 8/3 - Dumbbell Curl
+35kg 6/3 - EZ Barbell Curl
+[337] - 14/11/25 🤤
+REST REST REST REST REST REST REST
+[338] - 15/11/25 💪🏼😎🚪- ARM SHOULDER
+10kg 15/4 - Dumbbell Curl
+10kg 15/4 - Dumbbell Hammer Curls
+4kg 15/4 - Dumbbell Front Raise
+10kg 12/4 - Dumbbell Lateral Raise
+[339] - 16/11/25 🤤
+REST REST REST REST REST REST REST
+[340] - 17/11/25 📚💪🏼😎🫀- UPPER BODY
+75kg 8/3 - Barbell Incline Bench Press
+50kg 8/3 - Smith Machine Shoulder Press
+85.5kg 8/3 - Single Arm Machine Fly
+94.5kg 8/3 - Machine Row
+18kg 8/3 - Dumbbell Curl
+85.5kg 8/3 - Machine Lat Pulldown
+38.75kg 10/3 - Triceps Pushdown
+8.50kg 12/3 - Single Arm Cable Lateral Raise
+8.50kg 12/3 - Single Arm Cable Reverse Fly
+Cardio 30 Minute (Cycling)
+[341] - 18/11/25 🤤
+REST REST REST REST REST REST REST
+[342] - 19/11/25 📚💪🏼😎🫀- UPPER BODY
+85kg 6/3 - Barbell Bench Press
+33.75kg 8/3 - Single Arm Lat Pulldown
+94.5kg 8/3 - Machine Single Arm Row
+76.5kg 8/3 - Machine Chest Press
+18kg 8/3 - Dumbbell Curl
+12kg 12/3 - Dumbbell Lateral Raise
+40.5kg 12/2 - Triceps Extension
+49.5kg 10/2 - Machine Shoulder Press
+31.5kg 12/4 - Machine Rear Delt
+Cardio 30 Minute (Cycling)
+[343] - 20/11/25 📚💪🏼😎🫀- LOWER BODY
+80kg 8/3 - Smith Machine Squat
+67.5kg 12/3 - Leg Extension
+49.5kg 12/3 - Seated Leg Curl
+58.5kg 12/3 - Hip Abduction
+58.5kg 12/3 - Hip Adduction
+58.5kg 12/3 - Abdominal
+35kg 12/3 - Barbell Upright Row
+25kg 15/3 - Left Arm Plate Shrugs
+Cardio 30 Minute (Cycling)
+[344] - 21/11/25 🤤
+REST REST REST REST REST REST REST
+[345] - 22/11/25 🤤
+REST REST REST REST REST REST REST
+[346] - 23/11/25 🤤
+REST REST REST REST REST REST REST
+[347] - 24/11/25 📚💪🏼😎🫀- UPPER BODY
+80kg 6/3 - Barbell Incline Bench Press
+85.5kg 8/3 - Machine Chest Press
+85.5kg 10/3 - Machine Lat Pulldown
+103.5kg 6/3 - Machine Row
+8.50kg 15/3 - Single Arm Cable Lateral Raise
+50kg 8/3 - Smith Machine Shoulder Press
+18kg 10/3 - Dumbbell Curl
+41.25kg 8/3 - Triceps Pushdown
+8.50kg 12/3 - Single Arm Cable Reverse Fly
+Cardio 60 Minute (Cycling)
+[348] - 25/11/25 😎🫀🚪- CARDIO
+Cardio 30 Minute (Cycling)
+[349] - 26/11/25 📚💪🏼😎🫀- UPPER BODY
+100kg 1/3 - Barbell Bench Press
+120kg 10SEC/2 - Hold Barbell Bench Press
+85.5kg 8/3 - Single Arm Machine Fly
+94.5kg 10/3 - Machine Single Arm Row
+85.5kg 8/3 - Machine Single Arm Lat Pulldown
+8.50kg 15/3 - Single Arm Cable Lateral Raise
+8.50kg 12/3 - Single Arm Cable Reverse Fly
+49.5kg 12/3 - Machine Shoulder Press
+43.75kg 6/3 - Triceps Pushdown
+20kg 6/3 - Dumbbell Curl
+Cardio 50 Minute (Cycling)
+[350] - 27/11/25 😎🫀🚪- CARDIO
+Cardio 45 Minute (Cycling)
+[351] - 28/11/25 📚💪🏼😎🫀- LOWER BODY
+175.5kg 8/2 - Leg Press
+67.5kg 12/4 - Leg Extension
+49.5kg 12/4 - Seated Leg Curl
+[ADD] 70kg 1/1 - Smith Machine Shoulder Press
+[ADD] SM Incline Bench Press
+[ADD] Barbell Bench Press
+[ADD] Single Arm Cable Lateral Raise
+[ADD] DSET Dumbbell Lateral Raise
+[ADD] DSET Incline Dumbbell Hammer Curls
+25kg 15/4 - Left Arm Plate Shrugs
+40kg 8/3 - Barbell Upright Row
+Cardio 45 Minute (Cycling)
+[352] - 29/11/25 😎🫀🚪- CARDIO
+Cardio 30 Minute (Cycling)
+[353] - 30/11/25 😎🫀🚪- CARDIO
+Cardio 30/60 Minute (Cycling)
+[354] - 01/12/25 📚💪🏼😎- PUSH
+95kg 1/1 - Barbell Incline Bench Press
+100kg 1/1 - Barbell Bench Press
+80kg 8/2 - Barbell Bench Press
+40kg 12/2 - Smith Machine Shoulder Press
+8.50kg 12/2 - Single Arm Cable Lateral Raise
+41.25kg 8/2 - Triceps Pushdown
+[355] - 02/12/25 📚💪🏼😎🫀- UPPER BODY
+100kg 1/3 - Barbell Incline Bench Press
+80kg 8/2 - Barbell Incline Bench Press
+50kg 8/3 - Smith Machine Shoulder Press
+112.5kg 6/2 - Machine Row
+76.5kg 8/3 - Machine Chest Press
+20kg 8/3 - Dumbbell Curl
+16kg 10/3 - Incline Dumbbell Hammer Curls
+41.25kg 8/3 - Triceps Pushdown
+8.50kg 15/3 - Single Arm Cable Lateral Raise
+8.50kg 12/3 - Single Arm Cable Reverse Fly
+Cardio 30/90 Minute (Cycling)
+[356] - 03/12/25 😎🫀🚪- CARDIO
+Cardio 60/60 Minute (Cycling)
+[357] - 04/12/25 💪🏼😎🫀- UPPER BODY
+105kg 1/1 - Barbell Bench Press
+95kg 1/1 - Barbell Incline Bench Press
+80kg 8/2 - Barbell Incline Bench Press
+80kg 8/1 - Barbell Row
+85.5kg 10/3 - Machine Lat Pulldown
+75kg 1/1 - Smith Machine Shoulder Press
+40kg 8/2 - Smith Machine Shoulder Press
+20kg 10/3 - Dumbbell Curl
+16kg 8/3 - Incline Dumbbell Hammer Curls
+22.5kg 20/3 - Triceps Extension
+41.25kg 8/2 - Triceps Pushdown
+8.50kg 15/3 - Single Arm Cable Lateral Raise
+8.50kg 12/3 - Single Arm Cable Reverse Fly
+Cardio 30/90 Minute (Cycling)
+[358] - 05/12/25 😎🫀🚪- CARDIO
+Cardio 60/60 Minute (Cycling)
+[359] - 06/12/25 😎🫀🚪- CARDIO
+Cardio 60/60 Minute (Cycling)
+[360] - 07/12/25 😎🫀🚪- CARDIO
+Cardio 60/60/30 Minute (Cycling)
+[361] - 08/12/25 😎🫀🚪- CARDIO
+Cardio 60/60 Minute (Cycling)
+[362] - 09/12/25 😎🫀🚪- CARDIO
+Cardio 60/60 Minute (Cycling)
+[363] - 10/12/25 😎🫀🚪- CARDIO
+Cardio 60/60 Minute (Cycling)
+[364] - 11/12/25 💪🏼😎🫀- UPPER BODY
+80kg 8/3 - Barbell Incline Bench Press
+80kg 8/3 - Barbell Bench Press
+50kg 8/3 - Smith Machine Shoulder Press
+60kg 12/3 - Wide grip Lat Pulldown
+60kg 12/3 - Close Grip Lat Pulldown
+18kg 8/3 - Dumbbell Curl
+16kg 8/3 - Incline Dumbbell Hammer Curls
+48.75kg 12/3 - Close Grip Cable Row
+36.25kg 8/3 - Triceps Pushdown
+8.50kg 12/3 - Single Arm Cable Reverse Fly
+Cardio 30/60 Minute (Cycling)
+[365] - 12/12/25 😎🫀🚪- CARDIO
+Cardio 60/60 Minute (Cycling)
+`;
+        // ==========================================================================================
+        
+        const muscleMap = {
+            'bench press': 'อก (Chest)', 'fly': 'ร่องอก (Chest)', 'press': 'ดัน/กด',
+            'shoulder': 'ไหล่ (Shoulder)', 'military': 'ไหล่ (Shoulder)', 'lateral': 'ไหล่ข้าง',
+            'squat': 'ขา (Legs)', 'leg press': 'ขา (เครื่องใหญ่)', 'curl': 'หน้าแขน (Biceps)',
+            'tricep': 'หลังแขน (Triceps)', 'pulldown': 'ปีกหลัง (Lats)', 'row': 'หลัง (Back)',
+            'cardio': 'เบิร์นไขมัน', 'rest': 'พักผ่อน'
+        };
+
+        const monthNames = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+        
+        let groupedData = {}; 
+        let sortedMonthKeys = [];
+
+        window.onload = function() {
+            processData(fullDatabase);
+            renderTabs();
+            if(sortedMonthKeys.length > 0) {
+                selectMonth(sortedMonthKeys[0]); 
+            }
+        }
+
+        // Process Data
+        function processData(text) {
+            const lines = text.split('\n');
+            let currentDay = null;
+            let exercises = [];
+
+            const dayRegex = /^\[(\d+)\]\s-\s(\d{2})\/(\d{2})\/(\d{2})(.*)/; 
+            const exRegex = /^(.*?)\s-\s(.*)/;
+
+            lines.forEach(line => {
+                line = line.trim();
+                if (!line) return;
+
+                const dayMatch = line.match(dayRegex);
+                if (dayMatch) {
+                    if (currentDay) {
+                         saveDayToBucket(currentDay, exercises);
+                    }
+                    currentDay = {
+                        num: dayMatch[1],
+                        day: dayMatch[2],
+                        month: dayMatch[3],
+                        year: "20" + dayMatch[4], 
+                        title: dayMatch[5].replace(/-/g, '').trim() || 'Workout Log',
+                        fullDate: `${dayMatch[2]}/${dayMatch[3]}/${dayMatch[4]}`
+                    };
+                    exercises = [];
+                    return;
+                }
+
+                if (currentDay) {
+                    if (line.startsWith('Everyday') || line.startsWith('Total:')) return;
+                    const exMatch = line.match(exRegex);
+                    if (exMatch) {
+                        exercises.push({ stats: exMatch[1], name: exMatch[2], isSpecial: false });
+                    } else if (line.toLowerCase().includes('cardio') || line.toLowerCase().includes('rest') || line.includes('REST')) {
+                         exercises.push({ stats: '', name: line, isSpecial: true });
+                    }
+                }
+            });
+
+            if (currentDay) {
+                saveDayToBucket(currentDay, exercises);
+            }
+        }
+
+        function saveDayToBucket(day, exercises) {
+            const monthKey = `${day.year}-${day.month}`; 
+            if (!groupedData[monthKey]) {
+                groupedData[monthKey] = [];
+            }
+            groupedData[monthKey].push({ info: day, exercises: exercises });
+        }
+
+        function renderTabs() {
+            const container = document.getElementById('monthTabsContainer');
+            container.innerHTML = '';
+            sortedMonthKeys = Object.keys(groupedData).sort();
+
+            if (sortedMonthKeys.length === 0) {
+                container.innerHTML = '<div class="text-center w-full py-4 text-slate-400">Waiting for data...</div>';
+                return;
+            }
+
+            sortedMonthKeys.forEach((key, index) => {
+                const [year, month] = key.split('-');
+                const monthName = monthNames[parseInt(month) - 1];
+                const label = `${monthName} ${year}`;
+                
+                const btn = document.createElement('button');
+                btn.className = `month-tab px-5 py-2 rounded-full text-sm font-bold shadow-sm snap-center ${index === 0 ? 'tab-active' : 'tab-inactive'}`;
+                btn.innerText = label;
+                btn.dataset.key = key;
+                btn.onclick = () => selectMonth(key);
+                container.appendChild(btn);
+            });
+        }
+
+        function selectMonth(key) {
+            document.querySelectorAll('.month-tab').forEach(btn => {
+                if(btn.dataset.key === key) {
+                    btn.classList.remove('tab-inactive');
+                    btn.classList.add('tab-active');
+                    btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                } else {
+                    btn.classList.remove('tab-active');
+                    btn.classList.add('tab-inactive');
+                }
+            });
+            renderTimeline(groupedData[key]);
+        }
+
+        function renderTimeline(daysData) {
+            const container = document.getElementById('timelineContainer');
+            container.innerHTML = '';
+            
+            updateSummary(daysData); // Update Stats
+
+            daysData.forEach((data, index) => {
+                const day = data.info;
+                const exercises = data.exercises;
+                
+                // Logic เช็คว่าเป็นวันพักหรือไม่ (สำหรับสีการ์ด)
+                const isRest = day.title.toLowerCase().includes('rest') || 
+                               day.title.includes('🤤') || 
+                               exercises.some(ex => ex.name.toLowerCase().includes('rest'));
+
+                // Theme Logic
+                let theme = { color: 'slate', icon: 'fa-dumbbell', label: 'Workout' };
+                const t = day.title.toLowerCase();
+                
+                if (isRest) theme = { color: 'emerald', icon: 'fa-bed', label: 'Rest Day' };
+                else if (t.includes('leg') || t.includes('lower')) theme = { color: 'red', icon: 'fa-fire', label: 'Leg Day' };
+                else if (t.includes('push') || t.includes('upper')) theme = { color: 'blue', icon: 'fa-arrow-up', label: 'Push/Upper' };
+                else if (t.includes('pull')) theme = { color: 'orange', icon: 'fa-arrow-down', label: 'Pull Day' };
+
+                // Build Exercises HTML
+                let listHTML = '';
+                exercises.forEach(ex => {
+                    if(ex.isSpecial) {
+                         listHTML += `<div class="mt-2 pt-2 border-t border-slate-100 flex items-center text-xs text-slate-500"><i class="fas fa-heartbeat mr-2 text-rose-400"></i> ${ex.name}</div>`;
+                    } else {
+                        let contextText = '';
+                        const lowerName = ex.name.toLowerCase();
+                        for (const [key, value] of Object.entries(muscleMap)) {
+                            if (lowerName.includes(key)) { contextText = value; break; }
+                        }
+                        listHTML += `
+                        <div class="flex justify-between items-start py-2 border-b border-slate-50 last:border-0 hover:bg-slate-50 px-2 -mx-2 rounded transition">
+                            <div class="w-2/3 pr-2">
+                                <div class="font-medium text-slate-700 text-sm truncate">${ex.name}</div>
+                                ${contextText ? `<div class="text-[10px] text-slate-400 font-light">${contextText}</div>` : ''}
+                            </div>
+                            <div class="w-1/3 text-right">
+                                <div class="font-bold text-slate-800 text-sm truncate">${ex.stats}</div>
+                            </div>
+                        </div>`;
+                    }
+                });
+
+                const colors = {
+                    'slate': 'bg-slate-500 border-slate-200 text-slate-600 bg-slate-50',
+                    'red': 'bg-red-500 border-red-100 text-red-600 bg-red-50',
+                    'blue': 'bg-blue-500 border-blue-100 text-blue-600 bg-blue-50',
+                    'orange': 'bg-orange-500 border-orange-100 text-orange-600 bg-orange-50',
+                    'emerald': 'bg-emerald-500 border-emerald-100 text-emerald-600 bg-emerald-50'
+                };
+                const [bgColor, borderColor, textColor, softBg] = colors[theme.color].split(' ');
+
+                const card = document.createElement('div');
+                card.className = "flex gap-4 animate-up";
+                card.style.animationDelay = `${Math.min(index * 0.05, 0.5)}s`;
+                
+                card.innerHTML = `
+                    <div class="flex flex-col items-center w-14 shrink-0 pt-1">
+                        <span class="text-xs font-bold text-slate-400 mb-1">${day.month}/${day.year.slice(2)}</span>
+                        <div class="w-10 h-10 rounded-xl ${bgColor} text-white flex items-center justify-center font-bold shadow-md text-lg z-10">
+                            ${day.day}
+                        </div>
+                        <div class="w-[2px] h-full bg-slate-100 mt-2 -mb-6"></div>
+                    </div>
+                    
+                    <div class="flex-grow bg-white p-5 rounded-2xl shadow-sm border ${borderColor} mb-2 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-white via-transparent to-${theme.color}-500 opacity-5 rounded-full -mr-10 -mt-10 pointer-events-none"></div>
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <span class="${softBg} ${textColor} text-[10px] px-2 py-1 rounded font-bold uppercase tracking-wider mb-1 inline-block">${theme.label}</span>
+                                <h3 class="font-bold text-slate-800">${day.title}</h3>
+                            </div>
+                        </div>
+                        <div class="space-y-1">${listHTML}</div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // ===========================================
+        // FIXED FUNCTION: แก้ไขบั๊กนับวันพักตรงนี้
+        // ===========================================
+        function updateSummary(daysData) {
+            const container = document.getElementById('monthSummary');
+            const totalDays = daysData.length;
+            
+            // Logic ใหม่: นับวันพักถ้า (1) หัวข้อมี REST (2) หัวข้อมี 🤤 (3) ในลิสต์มีคำว่า REST
+            const restDays = daysData.filter(d => {
+                const titleLower = d.info.title.toLowerCase();
+                const titleIsRest = titleLower.includes('rest') || titleLower.includes('🤤');
+                const bodyIsRest = d.exercises.some(ex => ex.name.toLowerCase().includes('rest'));
+                return titleIsRest || bodyIsRest;
+            }).length;
+
+            const activeDays = totalDays - restDays;
+            
+            container.innerHTML = `
+                <div class="bg-white border border-slate-100 px-4 py-2 rounded-xl flex items-center gap-3 shadow-sm min-w-max">
+                    <div class="bg-blue-100 text-blue-600 w-8 h-8 rounded-full flex items-center justify-center"><i class="fas fa-dumbbell text-xs"></i></div>
+                    <div>
+                        <p class="text-[10px] text-slate-400 uppercase font-bold">Workouts</p>
+                        <p class="text-lg font-bold text-slate-800 leading-none">${activeDays}</p>
+                    </div>
+                </div>
+                <div class="bg-white border border-slate-100 px-4 py-2 rounded-xl flex items-center gap-3 shadow-sm min-w-max">
+                    <div class="bg-emerald-100 text-emerald-600 w-8 h-8 rounded-full flex items-center justify-center"><i class="fas fa-bed text-xs"></i></div>
+                    <div>
+                        <p class="text-[10px] text-slate-400 uppercase font-bold">Rest Days</p>
+                        <p class="text-lg font-bold text-slate-800 leading-none">${restDays}</p>
+                    </div>
+                </div>
+                 <div class="bg-white border border-slate-100 px-4 py-2 rounded-xl flex items-center gap-3 shadow-sm min-w-max">
+                    <div class="bg-slate-100 text-slate-600 w-8 h-8 rounded-full flex items-center justify-center"><i class="fas fa-calendar-check text-xs"></i></div>
+                    <div>
+                        <p class="text-[10px] text-slate-400 uppercase font-bold">Total Logs</p>
+                        <p class="text-lg font-bold text-slate-800 leading-none">${totalDays}</p>
+                    </div>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

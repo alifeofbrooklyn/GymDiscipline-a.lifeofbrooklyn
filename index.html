@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Everyday Life - Home</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: '#0f172a',
+                        brand: '#2563eb',
+                        bglight: '#f8fafc',
+                    },
+                    fontFamily: {
+                        sans: ['Kanit', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Kanit', sans-serif; background-color: #f8fafc; }
+        .glass-nav { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid #e2e8f0; }
+        .hover-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .hover-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); border-color: #3b82f6; }
+        .animate-enter { animation: enter 0.6s ease-out forwards; opacity: 0; transform: translateY(20px); }
+        @keyframes enter { to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="text-slate-800 min-h-screen flex flex-col">
+
+    <nav class="sticky top-0 z-50 glass-nav shadow-sm">
+        <div class="px-6 py-4 flex justify-between items-center max-w-4xl mx-auto">
+            <a href="index.html" class="relative group cursor-pointer">
+                <span class="absolute -inset-2 rounded-full bg-blue-100 opacity-0 group-hover:opacity-100 group-hover:animate-ping transition duration-500"></span>
+                
+                <div class="relative flex items-center justify-center w-10 h-10 rounded-full bg-white border border-blue-100 text-brand shadow-sm group-hover:bg-brand group-hover:text-white group-hover:border-brand transition-all duration-300 transform group-hover:rotate-12">
+                    <i class="fas fa-home text-sm transition-transform group-hover:scale-110"></i>
+                </div>
+            </a>
+            
+            <div class="flex flex-col items-center">
+                <span class="text-[10px] font-bold tracking-widest text-slate-400 uppercase">Project One Year</span>
+                <div class="font-bold text-dark text-lg leading-none">
+                    EVERYDAY <span class="text-brand">LIFE</span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <a href="index.html" class="relative group cursor-pointer block">
+                    <span class="absolute -inset-2 rounded-full bg-blue-100 opacity-0 group-hover:opacity-100 group-hover:animate-ping transition duration-500"></span>
+                    <div class="relative w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-md group-hover:border-blue-400 transition-colors duration-300">
+                        <img src="https://img2.pic.in.th/pic/imagee4a23de30075d23d.png" class="w-full h-full object-cover transform group-hover:scale-110 transition duration-500" alt="Profile">
+                    </div>
+                    <div class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full z-10 shadow-sm">
+                        <span class="absolute inset-0 rounded-full bg-emerald-500 animate-ping opacity-75"></span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-4xl mx-auto px-6 py-10 w-full flex-grow">
+        
+        <header class="text-center mb-12 animate-enter">
+            <h1 class="text-4xl md:text-6xl font-black text-slate-900 mb-4 tracking-tight">
+                I'M <span class="text-brand">BROOKLYN</span>
+            </h1>
+            <p class="text-slate-500 text-lg font-light max-w-xl mx-auto">
+                "Study = 🎓, Rest = 🤤, Weight Training = 💪🏼"
+            </p>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+            
+            <a href="timeline.html" class="block group hover-card bg-white rounded-2xl p-6 border border-slate-200 shadow-sm relative overflow-hidden h-64 animate-enter" style="animation-delay: 0.1s">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-full -mr-10 -mt-10 group-hover:scale-150 transition duration-500"></div>
+                
+                <div class="relative z-10 h-full flex flex-col justify-between">
+                    <div class="w-12 h-12 rounded-xl bg-blue-100 text-brand flex items-center justify-center text-xl shadow-inner mb-4">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-800 mb-1 group-hover:text-brand transition">Timeline Log</h2>
+                        <p class="text-slate-500 text-sm">ดูบันทึกการฝึกแบบรายเดือน (Monthly Archive)</p>
+                    </div>
+                    <div class="flex items-center text-brand font-bold text-sm mt-4">
+                        เข้าสู่ฐานข้อมูล <i class="fas fa-arrow-right ml-2 group-hover:translate-x-2 transition"></i>
+                    </div>
+                </div>
+            </a>
+
+            <a href="gallery.html" class="block group hover-card bg-white rounded-2xl p-6 border border-slate-200 shadow-sm relative overflow-hidden h-64 animate-enter" style="animation-delay: 0.2s">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-orange-50 rounded-full -mr-10 -mt-10 group-hover:scale-150 transition duration-500"></div>
+                
+                <div class="relative z-10 h-full flex flex-col justify-between">
+                    <div class="w-12 h-12 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center text-xl shadow-inner mb-4">
+                        <i class="fas fa-play"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-800 mb-1 group-hover:text-orange-600 transition">Visual Gallery</h2>
+                        <p class="text-slate-500 text-sm">วิดีโอพัฒนาการน้ำหนัก (Progression Videos)</p>
+                    </div>
+                    <div class="flex items-center text-orange-600 font-bold text-sm mt-4">
+                        รับชมวิดีโอ <i class="fas fa-arrow-right ml-2 group-hover:translate-x-2 transition"></i>
+                    </div>
+                </div>
+            </a>
+
+        </div>
+
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex justify-around items-center text-center animate-enter" style="animation-delay: 0.3s">
+            <div>
+                <div class="text-3xl font-black text-brand">365</div>
+                <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Days Logged</div>
+            </div>
+            <div class="w-[1px] h-10 bg-slate-100"></div>
+            <div>
+                <div class="text-3xl font-black text-slate-800">660</div>
+                <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Max PR (lbs)</div>
+            </div>
+            <div class="w-[1px] h-10 bg-slate-100"></div>
+            <div>
+                <div class="text-3xl font-black text-emerald-500">100%</div>
+                <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Discipline</div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="py-6 text-center text-slate-400 text-xs">
+        © 2025 a.lifeofbrooklyn Everyday Life.
+    </footer>
+
+</body>
+</html>
